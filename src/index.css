@@ -1,3 +1,8 @@
+* {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -5,9 +10,54 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #F4F7FD !important;
+
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+.logo-header-text {
+  font-size: 24px;
+  color: var(--black, #000112);
+  align-self: center;
+  margin: 0px;
+  font-family: Plus Jakarta Sans;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+}
+
+.sidebar-text {
+  color: var(--medium-grey, #828FA3);
+  margin: 0;
+  font-size: 15px;
+  font-family: Plus Jakarta Sans;
+  font-style: normal;
+  text-transform: none;
+  font-weight: 700;
+  line-height: normal;
+}
+
+.text-heading-M{
+  color: var(--white, #FFF);
+/* Heading (M) */
+font-size: 15px;
+font-family: Plus Jakarta Sans;
+font-style: normal;
+font-weight: 700;
+line-height: normal;
+}
+
+.sidebar-small-text{
+  color: var(--medium-grey, #828FA3);
+font-size: 12px;
+font-family: Plus Jakarta Sans;
+font-style: normal;
+font-weight: 700;
+line-height: normal;
+letter-spacing: 2.4px;
+margin-left: 32px;
 }
