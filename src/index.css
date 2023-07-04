@@ -61,3 +61,14 @@ line-height: normal;
 letter-spacing: 2.4px;
 margin-left: 32px;
 }
+
+.btn-text{
+  color: var(--main-purple, #635FC7);
+text-align: center;
+font-size: 13px;
+font-family: Plus Jakarta Sans;
+font-style: normal;
+font-weight: 700;
+line-height: 23px;
+text-transform: none;
+}
