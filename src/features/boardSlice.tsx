@@ -202,9 +202,28 @@ export const fetchBoards = createAsyncThunk<[], void, { rejectValue: string }>(
 );
 
 
+
+export const createBoard = createAsyncThunk(
+  "boards/createBoard",
+  async (boardName : string, thunkAPI) => {
+    try {
+     
+      const response = await fetch(`https://api.trello.com/1/boards/?name=${boardName}&key=8670fe9cc0999e8bf3155942da0ed34f&token=ATTA731e3636819e6a98287c2b52f082e13d2349319288709a2004fb2d571ae4f83bDB2A86E9`, {
+        method: 'POST'
+      });
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue("Failed to create Board.");
+    }
+  }
+);
+
+
 export interface BoardsInitialState {
   AllBoards: RootObject[];
   boardColumns: string[];
+  boardColumnSize: number;
   selectedBoard: selectedBoardInfo;
   loading: boolean;
   error: string | null;
@@ -213,6 +232,7 @@ export interface BoardsInitialState {
 
 const initialState: BoardsInitialState = {
   AllBoards: [],
+  boardColumnSize: 0,
   boardColumns: [],
   selectedBoard: {
     id: "",
@@ -229,6 +249,9 @@ export const boardsSlice = createSlice({
     addBoardColumns: (state, action) => {
       state.boardColumns.push(action.payload);
     },
+    incrementBoardColumnSize: (state) => {
+      state.boardColumnSize++;
+    }
 
   },
   extraReducers: (builder) => {
@@ -244,10 +267,14 @@ export const boardsSlice = createSlice({
       .addCase(fetchBoards.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Something went wrong';
-      });
+      })
+
+    .addCase(createBoard.fulfilled, (state, action: any) => { 
+      state.AllBoards.push(action.payload)
+    })
   },
 });
 
 
-export const {addBoardColumns } = boardsSlice.actions
+export const {addBoardColumns, incrementBoardColumnSize } = boardsSlice.actions
 export default boardsSlice.reducer;

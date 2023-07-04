@@ -15,7 +15,7 @@ import InputBase from '@mui/material/InputBase';
 import { alpha } from '@mui/material/styles';
 import FormControl from '@mui/material/FormControl';
 import FormHelperText from '@mui/material/FormHelperText';
-import { useForm, Controller } from "react-hook-form"
+import { useForm, Controller, useFieldArray } from "react-hook-form"
 import { DevTool } from '@hookform/devtools';
 import DialogContentText from '@mui/material/DialogContentText';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -25,7 +25,7 @@ import TextField from '@mui/material/TextField';
 import { useSelector } from 'react-redux';
 import { RootState } from '../app/store';
 import { useAppDispatch, AppDispatch } from '../app/store';
-import { addBoardColumns } from '../features/boardSlice';
+import { addBoardColumns, createBoard, incrementBoardColumnSize } from '../features/boardSlice';
 
 
 
@@ -110,45 +110,50 @@ BootstrapDialogTitle.propTypes = {
 
 
 
-
-type FormInputs = {
-    board_name: string
+type FormValues = {
+    board_name: string,
+    col: {
+       name: string
+      }[]
 }
 
+
 export default function ModalForm() {
-    const form = useForm<FormInputs>({
+    const form = useForm<FormValues>({
         defaultValues: {
-            board_name: ""
+            board_name: "",
         }
     });
     const { register, control, handleSubmit, reset, getValues, formState } = form;
     const [open, setOpen] = React.useState(false);
     const boardList = useSelector((state: RootState) => state.boards.boardColumns);
+    const modalToggle = useSelector((state: RootState) => state.modals);
     const dispatch: AppDispatch = useAppDispatch();
 
+    const { fields, append, prepend, remove, swap, move, insert } = useFieldArray<FormValues>({
+        control,
+        name: "col",
+    });
     console.log("board list ", boardList);
+
     const handleClickOpen = () => {
+        // console.log("form data ", getValues())
         setOpen(true);
     };
 
     const handleClose = () => {
+       console.log("im closed? ")
         setOpen(false);
     };
 
 
-    const onSubmit = (data: FormInputs) => console.log(data)
-
-
-    const addNewColumn = () => {
-        console.log("form value ", getValues().board_name);
-        if (getValues().board_name.trim() !== "") {
-            console.log("am i added?")
-            dispatch(addBoardColumns(getValues().board_name));
-        }
-        else {
-            return
-        }
+    const onSubmit = (data: any) => {
+        console.log("submitted ", data)
+        dispatch(createBoard(data.board_name))
+        setOpen(false);
     }
+
+ 
     console.log("Form state ", formState)
 
     return (
@@ -186,11 +191,11 @@ export default function ModalForm() {
 
                                     <TextField
                                         placeholder="e.g. Web Design"
+                                        size="small"
                                         onBlur={onBlur}
                                         onChange={onChange}
                                         value={value}
                                         error={!value}
-                                        // label="Error"
                                         type='text'
                                         id="fullname-input"
                                         helperText={!value ? "Required" : ""}
@@ -214,31 +219,48 @@ export default function ModalForm() {
                             fontStyle: 'normal',
                             fontWeight: '700',
                             lineHeight: 'normal',
+                            mb:"8px"
                         }}>
                             Columns
                         </DialogContentText>
-                        <div style={{ display: "flex", flexDirection: "column" }}>
-
-                        </div>
-                        {boardList.map((list, idx) => {
+                        
+                        {fields.map((field, idx) => {
                             return (
-                                <div key={idx}>
-                                    <Button variant="outlined" sx={{
-                                        width: "93%", mb: "12px", borderColor: "lightgray", justifyContent: "start",
-                                        height: '40px',
-                                    }}><span style={{
-                                        color: ' var(--black, #000112)',
-                                        fontSize: '16px',
-                                        fontFamily: 'Plus Jakarta San',
-                                        fontStyle: 'normal',
-                                        fontWeight: '500',
-                                        lineHeight: '23px',
-                                        textTransform: "none",
+                                <div key={field.id}>
 
-                                    }}>{list}</span></Button>
-                                    <i style={{
-                                        cursor: "pointer",
-                                    }}><img src={require("../images/col-x.svg").default} alt="" style={{ marginLeft: "20px" }} /></i>
+                                    <Controller
+                                        control={control}
+                                        name={`col.${idx}.name`}
+                                        render={({ field: { onChange, onBlur, value, ref } }) => (
+                                            <div style={{display:'flex', alignItems:'center', marginBottom:"25px"}}>
+                                        
+                                                <TextField
+
+                                                    size="small"
+                                                    onBlur={onBlur}
+                                                    onChange={onChange}
+                                                    value={value}
+                                                    error={!value}
+                                                    type='text'
+                                                    id="fullname-input"
+                                                    helperText={!value ? "Required" : ""}
+                                                    required
+                                                    sx={{
+                                                        width: "500px",
+                                                        maxWidth: "100%",
+                                                        height: '40px',
+                                                        minWidth: '0',
+                                                        // mb: "48px",
+                                                        padding: "0px"
+                                                    }}
+                                                />
+                                                <i onClick={() => remove(idx)} style={{
+                                                    cursor: "pointer",
+                                                }}><img src={require("../images/col-x.svg").default} alt="" style={{ marginLeft: "20px" }} /></i>
+                                            </div>
+                                        )}
+                                    />
+
                                 </div>
                             )
                         })}
@@ -254,7 +276,7 @@ export default function ModalForm() {
                             width: '100%',
                             py: "10px",
                             mb: "24px"
-                        }} onClick={addNewColumn}><span className='btn-text'>+ Add New Column</span></Button>
+                        }} onClick={()=> append({name:""})}><span className='btn-text'>+ Add New Column</span></Button>
                         <Button
                             sx={{
                                 borderRadius: '20px',
@@ -262,7 +284,7 @@ export default function ModalForm() {
                                 width: '100%',
                                 py: "10px"
                             }}
-                            onClick={handleClose}><span className='btn-text' style={{ color: "white" }}>Create New Board</span></Button>
+                            type="submit"><span className='btn-text' style={{ color: "white" }}>Create New Board</span></Button>
                     </DialogActions>
                 </form >
             </Dialog >
