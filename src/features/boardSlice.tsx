@@ -265,6 +265,22 @@ export const createListForBoard = createAsyncThunk(
   }
 );
 
+
+
+export const updateBoardList = createAsyncThunk(
+  "boards/updateBoardList",
+  async ({ list_name , list_id} : {list_name: string, list_id: string}, thunkAPI) => {
+    try {
+      const response = await fetch(`https://api.trello.com/1/lists/${list_id}?name=${list_name}&key=${API_Authentication.key}&token=${API_Authentication.token}`
+        , { method: 'PUT' });
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue("Failed to fetch Selected Board.");
+    }
+  }
+);
+
 export interface BoardsInitialState {
   AllBoards: RootObject[];
   boardColumns: string[];

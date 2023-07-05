@@ -25,7 +25,7 @@ import TextField from '@mui/material/TextField';
 import { useSelector } from 'react-redux';
 import { RootState } from '../app/store';
 import { useAppDispatch, AppDispatch } from '../app/store';
-import { AddBoard, createBoard, createListForBoard, fetchBoardById, incrementBoardColumnSize } from '../features/boardSlice';
+import { AddBoard, createBoard, createListForBoard, fetchBoardById, incrementBoardColumnSize, updateBoardList } from '../features/boardSlice';
 import { toggleCreateBoard, toggleEditBoard } from '../features/modalSlice';
 
 
@@ -139,7 +139,7 @@ export default function ModalForm() {
     console.log("board list ", boardList);
 
     React.useEffect(() => {
-        debugger
+        // debugger
         if (modalToggle.addNewBoardToggle) {
             setOpen(true)
         }
@@ -197,8 +197,39 @@ export default function ModalForm() {
             }
 
         }
-        boardCreation()
+
+        if (modalToggle.editBoardToggle) {
+            const updates_found = []
+            const found = selectedBoard[0].lists.filter((listName: any) =>
+            {
+                debugger;
+                const update_found = data.col.some((formlistName: any) => {
+                    return listName.name === formlistName.name
+                })
+                if (!update_found) {
+                 
+                    updates_found.push(listName)
+                    return true
+                }
+                else {
+                    return false
+                }
+                
+                }
+            )
+            console.log("Logging updates ", found)
+            dispatch(toggleEditBoard(false))
+            // for (const list in updates)
+            // dispatch(updateBoardList({}))
+        }
+        else {
+            boardCreation()
+        }
         setOpen(false);
+    }
+
+    const onEditSubmit = (data: any) => {
+        
     }
 
     React.useEffect(() => {
@@ -332,7 +363,17 @@ export default function ModalForm() {
                             mb: "24px"
                         }} onClick={() => append({ name: "" })}><span className='btn-text'>+ Add New Column</span></Button>
 
-
+                        {modalToggle.editBoardToggle?
+                        <Button
+                        sx={{
+                            borderRadius: '20px',
+                            backgroundColor: 'var(--main-purple, #635FC7)',
+                            width: '100%',
+                            py: "10px"
+                        }}
+                        type="submit"><span className='btn-text' style={{ color: "white" }}>Save Changes</span></Button>
+                        :
+                        
                         <Button
                             sx={{
                                 borderRadius: '20px',
@@ -341,6 +382,8 @@ export default function ModalForm() {
                                 py: "10px"
                             }}
                             type="submit"><span className='btn-text' style={{ color: "white" }}>Create New Board</span></Button>
+                        }
+
                     </DialogActions>
                 </form >
             </Dialog >
