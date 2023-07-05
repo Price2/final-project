@@ -189,12 +189,12 @@ export default function ModalForm() {
     const onSubmit = (data: any) => {
         console.log("submitted ", data)
         const boardCreation = async () => {
-            if (data.col.length) {
+            if (data.listsName.length) {
                 const boardCreated = await dispatch(createBoard(data.board_name))
                 const { id } = boardCreated.payload;
-                for (const lists in data.col) {
-                    console.log("names ", data.col[lists].name)
-                    await dispatch(createListForBoard({ list_name: data.col[lists].name, board_id: id }))
+                for (const lists in data.listsName) {
+                    console.log("names ", data.listsName[lists].name)
+                    await dispatch(createListForBoard({ list_name: data.listsName[lists].name, board_id: id }))
                 }
                 const getBoardWithLists = await dispatch(fetchBoardById(id))
                 dispatch(AddBoard(getBoardWithLists.payload))
@@ -208,10 +208,11 @@ export default function ModalForm() {
 
         if (modalToggle.editBoardToggle) {
             const updates_found = []
+            console.log("updated ", data)
             const found = selectedBoard[0].lists.filter((listName: any) =>
             {
                 debugger;
-                const update_found = data.col.some((formlistName: any) => {
+                const update_found = data.listsName.some((formlistName: any) => {
                     return listName.name === formlistName.name
                 })
                 if (!update_found) {
