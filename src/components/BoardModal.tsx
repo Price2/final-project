@@ -241,6 +241,11 @@ export default function ModalForm() {
     console.log("Form state ", formState)
     console.log("logging modal ", modalToggle)
     
+
+    const handleRemove = (index:any) => {
+    console.log("am i removed? ", index)
+}
+
     return (
         <>
             <Dialog open={open} onClose={handleClose}>
@@ -339,7 +344,7 @@ export default function ModalForm() {
                                                         padding: "0px"
                                                     }}
                                                 />
-                                                <i onClick={() => remove(idx)} style={{
+                                                <i onClick={() => { remove(idx); handleRemove(field) }} style={{
                                                     cursor: "pointer",
                                                 }}><img src={require("../images/col-x.svg").default} alt="" style={{ marginLeft: "20px" }} /></i>
                                             </div>
