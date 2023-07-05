@@ -1,22 +1,22 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit"
 
 export interface ModalInitialState {
-    addNewBoard: boolean;
-    editBoard: boolean;
-    deleteBoard: boolean;
-    addTasks: boolean;
-    editTasks: boolean;
-    deleteTasks: boolean;
+    addNewBoardToggle: boolean;
+    editBoardToggle: boolean;
+    deleteBoardToggle: boolean;
+    addTasksToggle: boolean;
+    editTasksToggle: boolean;
+    deleteTasksToggle: boolean;
   
   }
 
 const initialState: ModalInitialState = {
-    addNewBoard: false,
-    editBoard: false,
-    deleteBoard: false,
-    addTasks: false,
-    editTasks: false,
-    deleteTasks: false,
+    addNewBoardToggle: false,
+    editBoardToggle: false,
+    deleteBoardToggle: false,
+    addTasksToggle: false,
+    editTasksToggle: false,
+    deleteTasksToggle: false,
     
 }
 
@@ -25,15 +25,18 @@ export const modalSlice = createSlice({
     name: 'modal_slice',
     initialState,
     reducers: {
-        toggleAddBoard: (state, action) => {
-            state.addNewBoard = action.payload
-     }
+        toggleCreateBoard: (state, action) => {
+            state.addNewBoardToggle = action.payload;
+        },
+        toggleEditBoard: (state, action) => {
+            state.editBoardToggle = action.payload
+        }
   
     },
     
 });
   
 
-export const { toggleAddBoard } = modalSlice.actions;
+export const { toggleCreateBoard, toggleEditBoard } = modalSlice.actions;
 export default modalSlice.reducer;
 

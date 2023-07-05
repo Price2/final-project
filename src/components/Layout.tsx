@@ -18,8 +18,11 @@ import ListItemText from '@mui/material/ListItemText';
 import Fab from '@mui/material/Fab';
 import { Button } from '@mui/material';
 import { useSelector } from 'react-redux';
-import { RootState } from '../app/store';
+import { AppDispatch, RootState, useAppDispatch } from '../app/store';
 import BoardModal from './BoardModal';
+import { toggleCreateBoard, toggleEditBoard } from '../features/modalSlice';
+import { fetchSelectedBoard, setCurrentSelectedBoard } from '../features/boardSlice';
+
 const drawerWidth = 240;
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
@@ -133,15 +136,20 @@ const StyledMenu = styled((props: MenuProps) => (
 }));
 
 
+type Props = {
+    children: React.ReactNode;
+  }
 
-
-export default function PersistentDrawerLeft() {
+export default function PersistentDrawerLeft({children}: Props) {
     const [open, setOpen] = React.useState(false);
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const openAnchor = Boolean(anchorEl);
     const boards = useSelector((state: RootState) => state.boards);
+    const selectedBoard = useSelector((state: RootState) => state.boards.selectedBoard);
+    const isModalToggled = useSelector((state: RootState) => state.modals);
+    const dispatch: AppDispatch = useAppDispatch();
 
-console.log("loading boards ", boards)
+    console.log("loading boards ", boards)
 
 
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -151,9 +159,6 @@ console.log("loading boards ", boards)
         setAnchorEl(null);
     };
 
-
-
-
     const handleDrawerOpen = () => {
         setOpen(true);
     };
@@ -161,6 +166,22 @@ console.log("loading boards ", boards)
     const handleDrawerClose = () => {
         setOpen(false);
     };
+
+    const handleCreateBoard = () => {
+        dispatch(toggleCreateBoard(true));
+    }
+
+    const setSelectedBoard = (board: any) => {
+        console.log("board selected ", board);
+        dispatch(fetchSelectedBoard(board.id))
+        dispatch(setCurrentSelectedBoard(board))
+        
+    }
+
+    const handleEditBoard = () => {
+        dispatch(toggleEditBoard(true))
+    }
+
 
     return (
         <Box sx={{ display: 'flex' }}>
@@ -184,8 +205,14 @@ console.log("loading boards ", boards)
                             background: 'var(--main-purple, #635FC7)',
                             width: '164px',
                             height: '48px',
-                            textTransform: 'none'
-                        }}><span className="text-heading-M">+ Add New Task</span></Button>
+                            textTransform: 'none',
+                            "&.Mui-disabled": {
+                                background: "#d8d7f1",
+                              }
+                        }}
+                            disabled={!boards.AllBoards.length ? true : false}>
+                            <span className="text-heading-M">+ Add New Task</span>
+                        </Button>
 
                         <Button
                             id="demo-customized-button"
@@ -206,7 +233,7 @@ console.log("loading boards ", boards)
                             open={openAnchor}
                             onClose={handleClose}
                         >
-                            <MenuItem onClick={handleClose} disableRipple>
+                            <MenuItem onClick={handleEditBoard} disableRipple>
                                 Edit Board
                             </MenuItem>
                             <MenuItem onClick={handleClose} disableRipple sx={{ color: 'red' }}>
@@ -238,21 +265,48 @@ console.log("loading boards ", boards)
                     <p className='sidebar-small-text'>
                         ALL BOARDS
                     </p>
-                    {boards.AllBoards.map((board, index) => (
-                        <ListItem key={index} disablePadding>
-                            <ListItemButton>
-                                <img src={require('../images/board-icon.svg').default} style={{ marginRight: "16px" }} />
-                                <ListItemText primary={board.name} sx={{
-                                    color: 'var(--medium-grey, #828FA3)',
-                                    fontSize: '15px',
+                    {boards.AllBoards.map((board, index) => {
+                        
+                        const isSelected = selectedBoard.length? board.id === selectedBoard[0].id? true : false : false;
+                        return (
+
+                            <ListItem key={index} disablePadding>
+                                <ListItemButton onClick={() => setSelectedBoard(board)}
+                                    sx={{
+                                        backgroundColor: isSelected ? 'var(--main-purple, #635FC7)' : "ffffff",
+                                        borderRadius: '0px 100px 100px 0px',
+                                        maxWidth: '90%',
+                                    }}>
+                                    <img src={require('../images/board-icon.svg').default} style={{ marginRight: "16px" }} />
+                                    <ListItemText disableTypography primary={board.name} sx={{
+                                        color: isSelected ? 'white' : 'var(--medium-grey, #828FA3)',
+                                        fontSize: '15px',
+                                        fontFamily: 'Plus Jakarta Sans',
+                                        fontStyle: 'normal',
+                                        fontWeight: '700',
+                                        lineHeight: 'normal',
+                                        wordBreak: "break-word",
+
+                                    }} />
+                                </ListItemButton>
+                            </ListItem>
+                        )
+                    })}
+
+
+                    <ListItem disablePadding>
+                        <ListItemButton onClick={handleCreateBoard}>
+                            <img src={require('../images/createboard-icon.svg').default} style={{ marginRight: "16px" }} />
+                            <ListItemText primary="+ Create New Board" disableTypography sx={{
+                                color: ' var(--main-purple, #635FC7)',
+                                fontSize: '15px',
                                 fontFamily: 'Plus Jakarta Sans',
                                 fontStyle: 'normal',
                                 fontWeight: '700',
                                 lineHeight: 'normal',
-                                }} />
-                            </ListItemButton>
-                        </ListItem>
-                    ))}
+                            }} />
+                        </ListItemButton>
+                    </ListItem>
                 </List>
 
 
@@ -276,7 +330,7 @@ console.log("loading boards ", boards)
             </Drawer>
             <Main open={open}>
                 <DrawerHeader />
-               <BoardModal/>
+                {children}
             </Main>
 
 

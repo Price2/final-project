@@ -25,7 +25,8 @@ import TextField from '@mui/material/TextField';
 import { useSelector } from 'react-redux';
 import { RootState } from '../app/store';
 import { useAppDispatch, AppDispatch } from '../app/store';
-import { addBoardColumns, createBoard, incrementBoardColumnSize } from '../features/boardSlice';
+import { AddBoard, createBoard, createListForBoard, fetchBoardById, incrementBoardColumnSize } from '../features/boardSlice';
+import { toggleCreateBoard, toggleEditBoard } from '../features/modalSlice';
 
 
 
@@ -113,8 +114,8 @@ BootstrapDialogTitle.propTypes = {
 type FormValues = {
     board_name: string,
     col: {
-       name: string
-      }[]
+        name: string
+    }[]
 }
 
 
@@ -124,9 +125,10 @@ export default function ModalForm() {
             board_name: "",
         }
     });
-    const { register, control, handleSubmit, reset, getValues, formState } = form;
+    const { register, control, handleSubmit, reset, getValues, setValue, formState } = form;
     const [open, setOpen] = React.useState(false);
     const boardList = useSelector((state: RootState) => state.boards.boardColumns);
+    const selectedBoard = useSelector((state: RootState) => state.boards.selectedBoard);
     const modalToggle = useSelector((state: RootState) => state.modals);
     const dispatch: AppDispatch = useAppDispatch();
 
@@ -136,33 +138,83 @@ export default function ModalForm() {
     });
     console.log("board list ", boardList);
 
-    const handleClickOpen = () => {
-        // console.log("form data ", getValues())
-        setOpen(true);
-    };
+    React.useEffect(() => {
+        debugger
+        if (modalToggle.addNewBoardToggle) {
+            setOpen(true)
+        }
+
+    }, [modalToggle.addNewBoardToggle])
+
+
+    React.useEffect(() => {
+        if (modalToggle.editBoardToggle) {
+            if (selectedBoard.length && selectedBoard[0].lists.length) {
+                const lists :any = []
+                selectedBoard[0].lists.map((list: any) => {
+                    lists.push({ name: list.name })
+                    setValue('board_name', selectedBoard[0].name)
+                    setValue('col', lists)
+            
+                })
+            }
+            setOpen(true)
+        }
+    
+
+    }, [modalToggle.editBoardToggle])
 
     const handleClose = () => {
-       console.log("im closed? ")
+        console.log("im closed? ", modalToggle)
         setOpen(false);
+        reset({
+            board_name: "",
+            col: []
+        })
+        dispatch(toggleCreateBoard(false))
+        if (modalToggle.editBoardToggle) {
+            dispatch(toggleEditBoard(false))
+        }
     };
 
 
     const onSubmit = (data: any) => {
         console.log("submitted ", data)
-        dispatch(createBoard(data.board_name))
+        const boardCreation = async () => {
+            if (data.col.length) {
+                const boardCreated = await dispatch(createBoard(data.board_name))
+                const { id } = boardCreated.payload;
+                for (const lists in data.col) {
+                    console.log("names ", data.col[lists].name)
+                    await dispatch(createListForBoard({ list_name: data.col[lists].name, board_id: id }))
+                }
+                const getBoardWithLists = await dispatch(fetchBoardById(id))
+                dispatch(AddBoard(getBoardWithLists.payload))
+            }
+            else {
+                const boardCreated = await dispatch(createBoard(data.board_name))
+                dispatch(AddBoard(boardCreated.payload))
+            }
+
+        }
+        boardCreation()
         setOpen(false);
     }
 
- 
+    React.useEffect(() => {
+        reset({
+            board_name: "",
+            col: []
+        })
+    }, [formState.isSubmitSuccessful])
     console.log("Form state ", formState)
-
+    console.log("logging modal ", modalToggle)
+    
     return (
         <>
-            <Button variant="outlined" onClick={handleClickOpen}>
-                Open form dialog
-            </Button>
             <Dialog open={open} onClose={handleClose}>
                 <form onSubmit={handleSubmit(onSubmit)}>
+
                     <DialogTitle sx={{
                         color: ' var(--black, #000112)',
                         fontSize: '18px',
@@ -170,7 +222,9 @@ export default function ModalForm() {
                         fontStyle: 'normal',
                         fontWeight: '700',
                         lineHeight: 'normal',
-                    }}>Add New Board</DialogTitle>
+                    }}> {modalToggle.addNewBoardToggle ?
+                        "Add New Board" : "Edit Board"
+                        }</DialogTitle>
                     <DialogContent>
                         <Controller
                             control={control}
@@ -185,7 +239,7 @@ export default function ModalForm() {
                                         fontWeight: '700',
                                         lineHeight: 'normal',
                                     }}>
-                                        Name
+                                        {modalToggle.editBoardToggle ? "Board Name" : "Name"}
                                     </InputLabel>
 
 
@@ -219,11 +273,11 @@ export default function ModalForm() {
                             fontStyle: 'normal',
                             fontWeight: '700',
                             lineHeight: 'normal',
-                            mb:"8px"
+                            mb: "8px"
                         }}>
-                            Columns
+                            {modalToggle.editBoardToggle ? "Board Columns" : "Columns"}
                         </DialogContentText>
-                        
+
                         {fields.map((field, idx) => {
                             return (
                                 <div key={field.id}>
@@ -232,8 +286,8 @@ export default function ModalForm() {
                                         control={control}
                                         name={`col.${idx}.name`}
                                         render={({ field: { onChange, onBlur, value, ref } }) => (
-                                            <div style={{display:'flex', alignItems:'center', marginBottom:"25px"}}>
-                                        
+                                            <div style={{ display: 'flex', alignItems: 'center', marginBottom: "25px" }}>
+
                                                 <TextField
 
                                                     size="small"
@@ -276,7 +330,9 @@ export default function ModalForm() {
                             width: '100%',
                             py: "10px",
                             mb: "24px"
-                        }} onClick={()=> append({name:""})}><span className='btn-text'>+ Add New Column</span></Button>
+                        }} onClick={() => append({ name: "" })}><span className='btn-text'>+ Add New Column</span></Button>
+
+
                         <Button
                             sx={{
                                 borderRadius: '20px',

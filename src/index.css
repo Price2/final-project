@@ -72,3 +72,21 @@ font-weight: 700;
 line-height: 23px;
 text-transform: none;
 }
+
+.create-column-text{
+  position: absolute;
+  top: 50vh;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--medium-grey, #828FA3);
+  text-align: center;
+  font-size: 24px;
+  font-family: Plus Jakarta Sans;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  width: 100%;
+}
+.create-column-text:hover{
+  color: var(--main-purple, #635FC7);
+}

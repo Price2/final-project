@@ -2,7 +2,8 @@ import React from 'react';
 import Layout from "./components/Layout"
 import { useAppDispatch, AppDispatch } from './app/store';
 import { fetchBoards } from './features/boardSlice';
-
+import BoardModal from './components/BoardModal';
+import Home from './components/Home';
 function App() {
 
   const dispatch: AppDispatch = useAppDispatch();
@@ -12,7 +13,10 @@ function App() {
       }, [dispatch])
 
   return (
-    <Layout />
+    <Layout>
+      <BoardModal />
+      <Home/>
+    </Layout>
   );
 }
 
