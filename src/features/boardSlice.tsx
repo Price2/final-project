@@ -195,7 +195,7 @@ export const fetchBoards = createAsyncThunk<[], void, { rejectValue: string }>(
   "boards/fetchBoards",
   async (_, thunkAPI) => {
     try {
-      const response = await fetch(`https://api.trello.com/1/members/me/boards?key=${API_Authentication.key}&token=${API_Authentication.token}&lists=all&cards=all`);
+      const response = await fetch(`https://api.trello.com/1/members/me/boards?key=${API_Authentication.key}&token=${API_Authentication.token}&lists=open&cards=all`);
       const data = await response.json();
       return data;
     } catch (error) {
@@ -228,7 +228,7 @@ export const fetchSelectedBoard = createAsyncThunk(
   "boards/fetchSelectedBoard",
   async (board_id: string, thunkAPI) => {
     try {
-      const response = await fetch(`https://api.trello.com/1/boards/${board_id}?key=${API_Authentication.key}&token=${API_Authentication.token}&lists=all&cards=all`);
+      const response = await fetch(`https://api.trello.com/1/boards/${board_id}?key=${API_Authentication.key}&token=${API_Authentication.token}&lists=open&cards=all`);
       const data = await response.json();
       return data;
     } catch (error) {
@@ -241,7 +241,7 @@ export const fetchBoardById = createAsyncThunk(
   "boards/fetchBoardById",
   async (board_id: string, thunkAPI) => {
     try {
-      const response = await fetch(`https://api.trello.com/1/boards/${board_id}?key=${API_Authentication.key}&token=${API_Authentication.token}&lists=all&cards=all`);
+      const response = await fetch(`https://api.trello.com/1/boards/${board_id}?key=${API_Authentication.key}&token=${API_Authentication.token}&lists=open&cards=all`);
       const data = await response.json();
       return data;
     } catch (error) {
@@ -280,6 +280,9 @@ export const updateBoardList = createAsyncThunk(
     }
   }
 );
+
+
+
 
 export interface BoardsInitialState {
   AllBoards: RootObject[];

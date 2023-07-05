@@ -113,8 +113,8 @@ BootstrapDialogTitle.propTypes = {
 
 type FormValues = {
     board_name: string,
-    col: {
-        name: string
+    listsName: {
+            name: string,
     }[]
 }
 
@@ -123,9 +123,10 @@ export default function ModalForm() {
     const form = useForm<FormValues>({
         defaultValues: {
             board_name: "",
+            
         }
     });
-    const { register, control, handleSubmit, reset, getValues, setValue, formState } = form;
+    const { register, control, handleSubmit, reset, getValues, setValue, formState, watch } = form;
     const [open, setOpen] = React.useState(false);
     const boardList = useSelector((state: RootState) => state.boards.boardColumns);
     const selectedBoard = useSelector((state: RootState) => state.boards.selectedBoard);
@@ -134,9 +135,16 @@ export default function ModalForm() {
 
     const { fields, append, prepend, remove, swap, move, insert } = useFieldArray<FormValues>({
         control,
-        name: "col",
+        name: "listsName",
+      
     });
     console.log("board list ", boardList);
+
+    React.useEffect(() => {
+    console.log("im looking state fields ", formState)
+
+},[formState.touchedFields])
+
 
     React.useEffect(() => {
         // debugger
@@ -154,7 +162,7 @@ export default function ModalForm() {
                 selectedBoard[0].lists.map((list: any) => {
                     lists.push({ name: list.name })
                     setValue('board_name', selectedBoard[0].name)
-                    setValue('col', lists)
+                    setValue('listsName', lists)
             
                 })
             }
@@ -169,7 +177,7 @@ export default function ModalForm() {
         setOpen(false);
         reset({
             board_name: "",
-            col: []
+            listsName: []
         })
         dispatch(toggleCreateBoard(false))
         if (modalToggle.editBoardToggle) {
@@ -235,7 +243,7 @@ export default function ModalForm() {
     React.useEffect(() => {
         reset({
             board_name: "",
-            col: []
+            listsName: []
         })
     }, [formState.isSubmitSuccessful])
     console.log("Form state ", formState)
@@ -320,7 +328,7 @@ export default function ModalForm() {
 
                                     <Controller
                                         control={control}
-                                        name={`col.${idx}.name`}
+                                        name={`listsName.${idx}.name`}
                                         render={({ field: { onChange, onBlur, value, ref } }) => (
                                             <div style={{ display: 'flex', alignItems: 'center', marginBottom: "25px" }}>
 
@@ -366,7 +374,7 @@ export default function ModalForm() {
                             width: '100%',
                             py: "10px",
                             mb: "24px"
-                        }} onClick={() => append({ name: "" })}><span className='btn-text'>+ Add New Column</span></Button>
+                        }} onClick={() => append({ name: ""})}><span className='btn-text'>+ Add New Column</span></Button>
 
                         {modalToggle.editBoardToggle?
                         <Button
