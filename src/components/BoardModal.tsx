@@ -115,7 +115,7 @@ BootstrapDialogTitle.propTypes = {
 type FormValues = {
     board_name: string,
     listsName: {
-            name: string,
+        name: string,
     }[]
 }
 
@@ -124,7 +124,7 @@ export default function ModalForm() {
     const form = useForm<FormValues>({
         defaultValues: {
             board_name: "",
-            
+
         }
     });
     const { register, control, handleSubmit, reset, getValues, setValue, formState, watch } = form;
@@ -140,14 +140,14 @@ export default function ModalForm() {
     const { fields, append, prepend, remove, swap, move, insert } = useFieldArray<FormValues>({
         control,
         name: "listsName",
-      
+
     });
     console.log("board list ", boardList);
 
     React.useEffect(() => {
-    console.log("im looking state fields ", formState)
+        console.log("im looking state fields ", formState)
 
-},[formState.touchedFields])
+    }, [formState.touchedFields])
 
 
     React.useEffect(() => {
@@ -160,19 +160,24 @@ export default function ModalForm() {
 
 
     React.useEffect(() => {
+        debugger;
         if (modalToggle.editBoardToggle) {
             if (selectedBoard.length && selectedBoard[0].lists.length) {
-                const lists :any = []
+                const lists: any = []
                 selectedBoard[0].lists.map((list: any) => {
                     lists.push({ name: list.name, id: list.id })
                     setValue('board_name', selectedBoard[0].name)
                     setValue('listsName', lists)
-            
+
                 })
+                setOpen(true)
             }
-            setOpen(true)
+            else {
+                setOpen(true)
+                setValue('board_name', selectedBoard[0].name)
+            }
         }
-    
+
 
     }, [modalToggle.editBoardToggle])
 
@@ -213,52 +218,40 @@ export default function ModalForm() {
         if (modalToggle.editBoardToggle) {
             const updates_found = []
             debugger;
-
-            for (const listToRemove in removedList) {
-                const listname = selectedBoard[0].lists.filter((list: any) => list.name === removedList[listToRemove].name)[0]
-                dispatch(deleteBoardList(listname.id))
-                console.log("same name? ", listname)
-           }
-            console.log("updated ", data)
-
-
-            for (const key in data.listsName) {
-                debugger;
-                dispatch(updateBoardList({list_id: data.listsName[key].id, listName: data.listsName[key].name}))
-                console.log("same name? ")
-            }
-            
-
-            const reFetchBoard = async () => {
-                debugger;
-                const reFetchBoard:any = await dispatch(fetchSelectedBoard(selectedBoard[0].id))
-                dispatch(UpdateBoard(reFetchBoard.payload))
-                console.log("updated ", reFetchBoard)
-            }
-            reFetchBoard()
+            boardUpdate(data)
+            // for (const listToRemove in removedList) {
+            //     const listname = selectedBoard[0].lists.filter((list: any) => list.name === removedList[listToRemove].name)[0]
+            //     dispatch(deleteBoardList(listname.id))
+            //     console.log("same name? ", listname)
+            // }
+            // console.log("updated ", data)
 
 
 
-            // const found = selectedBoard[0].lists.filter((listName: any) =>
-            // {
+            // for (const key in data.listsName) {
             //     debugger;
-            //     const update_found = data.listsName.some((formlistName: any) => {
-            //         return listName.name === formlistName.name
-            //     })
-            //     if (!update_found) {
-                 
-            //         updates_found.push(listName)
-            //         return true
+            //     if (data.listsName[key]?.id) {
+            //         dispatch(updateBoardList({ list_id: data.listsName[key].id, listName: data.listsName[key].name }))
             //     }
             //     else {
-            //         return false
+            //         dispatch(createListForBoard({list_name: data.listsName[key].name, board_id: selectedBoard[0].id}))
             //     }
-                
-            //     }
-            // )
+            //     console.log("same name? ")
+            // }
+
+
+            // const reFetchBoard = async () => {
+            //     debugger;
+            //     const reFetchBoard: any = await dispatch(fetchSelectedBoard(selectedBoard[0].id))
+            //     dispatch(UpdateBoard(reFetchBoard.payload))
+            //     console.log("updated ", reFetchBoard)
+            // }
+            // reFetchBoard()
+
+
             console.log("Logging updates ")
             dispatch(toggleEditBoard(false))
-          
+
         }
         else {
             boardCreation()
@@ -266,9 +259,41 @@ export default function ModalForm() {
         setOpen(false);
     }
 
-    const generateID = (e:any) => {
-    
+    const boardUpdate = (data: any) => {
         
+        if (modalToggle.editBoardToggle) {
+            const updates_found = []
+            debugger;
+
+            for (const listToRemove in removedList) {
+                const listname = selectedBoard[0].lists.filter((list: any) => list.name === removedList[listToRemove].name)[0]
+                dispatch(deleteBoardList(listname.id))
+                console.log("same name? ", listname)
+            }
+            console.log("updated ", data)
+
+
+
+            for (const key in data.listsName) {
+                debugger;
+                if (data.listsName[key]?.id) {
+                    dispatch(updateBoardList({ list_id: data.listsName[key].id, listName: data.listsName[key].name }))
+                }
+                else {
+                    dispatch(createListForBoard({ list_name: data.listsName[key].name, board_id: selectedBoard[0].id }))
+                }
+                console.log("same name? ")
+            }
+
+
+            const reFetchBoard = async () => {
+                debugger;
+                const reFetchBoard: any = await dispatch(fetchSelectedBoard(selectedBoard[0].id))
+                dispatch(UpdateBoard(reFetchBoard.payload))
+                console.log("updated ", reFetchBoard)
+            }
+            reFetchBoard()
+        }
     }
 
     React.useEffect(() => {
@@ -279,13 +304,13 @@ export default function ModalForm() {
     }, [formState.isSubmitSuccessful])
     console.log("Form state ", formState)
     console.log("logging modal ", modalToggle)
-    
 
-    const handleRemove = (field:any, idx:any) => {
+
+    const handleRemove = (field: any, idx: any) => {
         console.log("am i removed? ", field)
-        setRemovedList( (myprev:any) => [...myprev, field] )
+        setRemovedList((myprev: any) => [...myprev, field])
         remove(idx);
-}
+    }
 
     console.log("logging form removed ", removedList)
     return (
@@ -325,7 +350,7 @@ export default function ModalForm() {
                                         placeholder="e.g. Web Design"
                                         size="small"
                                         onBlur={onBlur}
-                                        
+
                                         onChange={onChange}
                                         value={value}
                                         error={!value}
@@ -395,15 +420,15 @@ export default function ModalForm() {
                                         )}
                                     />
 
-                                    
 
 
-                                    
+
+
                                 </div>
                             )
 
 
-                            
+
                         })}
                     </DialogContent>
                     <DialogActions sx={{
@@ -417,27 +442,27 @@ export default function ModalForm() {
                             width: '100%',
                             py: "10px",
                             mb: "24px"
-                        }} onClick={() => append({ name: ""})}><span className='btn-text'>+ Add New Column</span></Button>
+                        }} onClick={() => append({ name: "" })}><span className='btn-text'>+ Add New Column</span></Button>
 
-                        {modalToggle.editBoardToggle?
-                        <Button
-                        sx={{
-                            borderRadius: '20px',
-                            backgroundColor: 'var(--main-purple, #635FC7)',
-                            width: '100%',
-                            py: "10px"
-                        }}
-                        type="submit"><span className='btn-text' style={{ color: "white" }}>Save Changes</span></Button>
-                        :
-                        
-                        <Button
-                            sx={{
-                                borderRadius: '20px',
-                                backgroundColor: 'var(--main-purple, #635FC7)',
-                                width: '100%',
-                                py: "10px"
-                            }}
-                            type="submit"><span className='btn-text' style={{ color: "white" }}>Create New Board</span></Button>
+                        {modalToggle.editBoardToggle ?
+                            <Button
+                                sx={{
+                                    borderRadius: '20px',
+                                    backgroundColor: 'var(--main-purple, #635FC7)',
+                                    width: '100%',
+                                    py: "10px"
+                                }}
+                                type="submit"><span className='btn-text' style={{ color: "white" }}>Save Changes</span></Button>
+                            :
+
+                            <Button
+                                sx={{
+                                    borderRadius: '20px',
+                                    backgroundColor: 'var(--main-purple, #635FC7)',
+                                    width: '100%',
+                                    py: "10px"
+                                }}
+                                type="submit"><span className='btn-text' style={{ color: "white" }}>Create New Board</span></Button>
                         }
 
                     </DialogActions>
