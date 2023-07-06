@@ -298,6 +298,20 @@ export const updateBoardList = createAsyncThunk(
 );
 
 
+export const updateBoardName = createAsyncThunk(
+  "boards/updateBoardName",
+  async ({board_id, board_name} : {board_id : string, board_name: string}, thunkAPI) => {
+    try {
+      const response = await fetch(`https://api.trello.com/1/boards/${board_id}?&name=${board_name}&key=${API_Authentication.key}&token=${API_Authentication.token}`
+        , { method: 'PUT' });
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue("Failed to update board Name.");
+    }
+  }
+);
+
 
 export interface BoardsInitialState {
   AllBoards: RootObject[];

@@ -25,7 +25,7 @@ import TextField from '@mui/material/TextField';
 import { useSelector } from 'react-redux';
 import { RootState } from '../app/store';
 import { useAppDispatch, AppDispatch } from '../app/store';
-import { AddBoard, UpdateBoard, createBoard, createListForBoard, deleteBoardList, fetchBoardById, fetchSelectedBoard, incrementBoardColumnSize, updateBoardList } from '../features/boardSlice';
+import { AddBoard, UpdateBoard, createBoard, createListForBoard, deleteBoardList, fetchBoardById, fetchSelectedBoard, incrementBoardColumnSize, updateBoardList, updateBoardName } from '../features/boardSlice';
 import { toggleCreateBoard, toggleEditBoard } from '../features/modalSlice';
 import { ReactJSXElement } from '@emotion/react/types/jsx-namespace';
 
@@ -265,6 +265,9 @@ export default function ModalForm() {
             const updates_found = []
             debugger;
 
+            if (data.board_name !== selectedBoard[0].name) {
+                dispatch(updateBoardName({board_id: selectedBoard[0].id, board_name: data.board_name}))
+            }
             for (const listToRemove in removedList) {
                 const listname = selectedBoard[0].lists.filter((list: any) => list.name === removedList[listToRemove].name)[0]
                 dispatch(deleteBoardList(listname.id))
