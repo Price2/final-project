@@ -1,5 +1,5 @@
 import * as React from 'react';
-// import { v4 as uuid } from 'uuid';
+import { v4 as uuid } from 'uuid';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -25,8 +25,9 @@ import TextField from '@mui/material/TextField';
 import { useSelector } from 'react-redux';
 import { RootState } from '../app/store';
 import { useAppDispatch, AppDispatch } from '../app/store';
-import { AddBoard, createBoard, createListForBoard, fetchBoardById, incrementBoardColumnSize, updateBoardList } from '../features/boardSlice';
+import { AddBoard, UpdateBoard, createBoard, createListForBoard, deleteBoardList, fetchBoardById, fetchSelectedBoard, incrementBoardColumnSize, updateBoardList } from '../features/boardSlice';
 import { toggleCreateBoard, toggleEditBoard } from '../features/modalSlice';
+import { ReactJSXElement } from '@emotion/react/types/jsx-namespace';
 
 
 
@@ -128,10 +129,13 @@ export default function ModalForm() {
     });
     const { register, control, handleSubmit, reset, getValues, setValue, formState, watch } = form;
     const [open, setOpen] = React.useState(false);
+    const [removedList, setRemovedList] = React.useState<any>([]);
     const boardList = useSelector((state: RootState) => state.boards.boardColumns);
     const selectedBoard = useSelector((state: RootState) => state.boards.selectedBoard);
+    const AllBoards = useSelector((state: RootState) => state.boards.AllBoards);
     const modalToggle = useSelector((state: RootState) => state.modals);
     const dispatch: AppDispatch = useAppDispatch();
+    const myRef = React.useRef<HTMLInputElement | any>([]);
 
     const { fields, append, prepend, remove, swap, move, insert } = useFieldArray<FormValues>({
         control,
@@ -160,7 +164,7 @@ export default function ModalForm() {
             if (selectedBoard.length && selectedBoard[0].lists.length) {
                 const lists :any = []
                 selectedBoard[0].lists.map((list: any) => {
-                    lists.push({ name: list.name })
+                    lists.push({ name: list.name, id: list.id })
                     setValue('board_name', selectedBoard[0].name)
                     setValue('listsName', lists)
             
@@ -208,28 +212,53 @@ export default function ModalForm() {
 
         if (modalToggle.editBoardToggle) {
             const updates_found = []
+            debugger;
+
+            for (const listToRemove in removedList) {
+                const listname = selectedBoard[0].lists.filter((list: any) => list.name === removedList[listToRemove].name)[0]
+                dispatch(deleteBoardList(listname.id))
+                console.log("same name? ", listname)
+           }
             console.log("updated ", data)
-            const found = selectedBoard[0].lists.filter((listName: any) =>
-            {
+
+
+            for (const key in data.listsName) {
                 debugger;
-                const update_found = data.listsName.some((formlistName: any) => {
-                    return listName.name === formlistName.name
-                })
-                if (!update_found) {
+                dispatch(updateBoardList({list_id: data.listsName[key].id, listName: data.listsName[key].name}))
+                console.log("same name? ")
+            }
+            
+
+            const reFetchBoard = async () => {
+                debugger;
+                const reFetchBoard:any = await dispatch(fetchSelectedBoard(selectedBoard[0].id))
+                dispatch(UpdateBoard(reFetchBoard.payload))
+                console.log("updated ", reFetchBoard)
+            }
+            reFetchBoard()
+
+
+
+            // const found = selectedBoard[0].lists.filter((listName: any) =>
+            // {
+            //     debugger;
+            //     const update_found = data.listsName.some((formlistName: any) => {
+            //         return listName.name === formlistName.name
+            //     })
+            //     if (!update_found) {
                  
-                    updates_found.push(listName)
-                    return true
-                }
-                else {
-                    return false
-                }
+            //         updates_found.push(listName)
+            //         return true
+            //     }
+            //     else {
+            //         return false
+            //     }
                 
-                }
-            )
-            console.log("Logging updates ", found)
+            //     }
+            // )
+            console.log("Logging updates ")
             dispatch(toggleEditBoard(false))
-            // for (const list in updates)
-            // dispatch(updateBoardList({}))
+          
         }
         else {
             boardCreation()
@@ -237,7 +266,8 @@ export default function ModalForm() {
         setOpen(false);
     }
 
-    const onEditSubmit = (data: any) => {
+    const generateID = (e:any) => {
+    
         
     }
 
@@ -251,10 +281,13 @@ export default function ModalForm() {
     console.log("logging modal ", modalToggle)
     
 
-    const handleRemove = (index:any) => {
-    console.log("am i removed? ", index)
+    const handleRemove = (field:any, idx:any) => {
+        console.log("am i removed? ", field)
+        setRemovedList( (myprev:any) => [...myprev, field] )
+        remove(idx);
 }
 
+    console.log("logging form removed ", removedList)
     return (
         <>
             <Dialog open={open} onClose={handleClose}>
@@ -292,6 +325,7 @@ export default function ModalForm() {
                                         placeholder="e.g. Web Design"
                                         size="small"
                                         onBlur={onBlur}
+                                        
                                         onChange={onChange}
                                         value={value}
                                         error={!value}
@@ -338,6 +372,7 @@ export default function ModalForm() {
                                                     size="small"
                                                     onBlur={onBlur}
                                                     onChange={onChange}
+                                                    ref={(e) => { ref(e); myRef.current.push(uuid()) }}
                                                     value={value}
                                                     error={!value}
                                                     type='text'
@@ -353,15 +388,22 @@ export default function ModalForm() {
                                                         padding: "0px"
                                                     }}
                                                 />
-                                                <i onClick={() => { remove(idx); handleRemove(field) }} style={{
+                                                <i onClick={() => { handleRemove(field, idx) }} style={{
                                                     cursor: "pointer",
                                                 }}><img src={require("../images/col-x.svg").default} alt="" style={{ marginLeft: "20px" }} /></i>
                                             </div>
                                         )}
                                     />
 
+                                    
+
+
+                                    
                                 </div>
                             )
+
+
+                            
                         })}
                     </DialogContent>
                     <DialogActions sx={{

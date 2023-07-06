@@ -33,7 +33,7 @@ export default function Home() {
             <>
                 {selectedBoard.length && selectedBoard[0]?.lists?.length ?
                     <>
-                        {selectedBoardList.map((board: any, idx:string) => {
+                        {selectedBoardList.map((board: any, idx: string) => {
 
                             return (
 
@@ -51,15 +51,26 @@ export default function Home() {
                                 >
                                     <div>
 
-                                        <p style={{ display: "flex", alignItems: 'center' }}>
+                                        <p style={{ display: "flex", alignItems: 'center',  fontSize: '12px',
+                                                fontStyle: 'normal',
+                                                fontWeight: '700',
+                                                lineHeight: 'normal',
+                                                letterSpacing: '2.4px',
+                                                color: 'var(--medium-grey, #828FA3)', }}>
                                             <span style={{
                                                 width: 15,
                                                 height: 15,
                                                 backgroundColor: `${getRandomColor()}`,
                                                 borderRadius: '50%',
-                                                marginRight: '12px'
+                                                marginRight: '12px',
+                                        
+
                                             }} /> {board.name} ({selectedBoardList.length})</p>
-                                        <Card sx={{ minWidth: 275, width: '280px', height: "88px" }}>
+                                        <Card sx={{
+                                            minWidth: 275, width: '300px', height: "90px", boxShadow: '0px 4px 6px 0px rgba(54, 78, 126, 0.10)',
+                                            borderRadius: '8px',
+
+                                        }}>
                                             <CardContent>
                                                 <Typography sx={{ fontSize: 14, }} color="text.secondary" gutterBottom>
                                                     Word of the Day
@@ -95,8 +106,8 @@ export default function Home() {
                                     marginTop: "55px",
                                     cursor: "pointer",
                                     backgroundColor: "#E9EFFA",
-                                   
-                                   
+
+
                                 }} className="test">
                                     <CardContent sx={{
                                         position: 'relative',

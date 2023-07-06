@@ -267,20 +267,35 @@ export const createListForBoard = createAsyncThunk(
 
 
 
-export const updateBoardList = createAsyncThunk(
-  "boards/updateBoardList",
-  async ({ list_name , list_id} : {list_name: string, list_id: string}, thunkAPI) => {
+export const deleteBoardList = createAsyncThunk(
+  "boards/deleteBoardList",
+  async (list_id:string, thunkAPI) => {
     try {
-      const response = await fetch(`https://api.trello.com/1/lists/${list_id}?name=${list_name}&key=${API_Authentication.key}&token=${API_Authentication.token}`
+      const response = await fetch(`https://api.trello.com/1/lists/${list_id}?&key=${API_Authentication.key}&token=${API_Authentication.token}&closed=true`
         , { method: 'PUT' });
       const data = await response.json();
       return data;
     } catch (error) {
-      return thunkAPI.rejectWithValue("Failed to fetch Selected Board.");
+      return thunkAPI.rejectWithValue("Failed to delete Selected Board List.");
     }
   }
 );
 
+
+
+export const updateBoardList = createAsyncThunk(
+  "boards/updateBoardList",
+  async ({list_id, listName} : {list_id : string, listName: string}, thunkAPI) => {
+    try {
+      const response = await fetch(`https://api.trello.com/1/lists/${list_id}?&name=${listName}&key=${API_Authentication.key}&token=${API_Authentication.token}`
+        , { method: 'PUT' });
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue("Failed to update board list.");
+    }
+  }
+);
 
 
 
@@ -325,6 +340,17 @@ export const boardsSlice = createSlice({
       console.log("action payload ", action.payload)
       state.AllBoards.push(action.payload)
     },
+    UpdateBoard: (state, action) => {
+      debugger;
+      console.log("action payload ", action.payload)
+      state.AllBoards = state.AllBoards.map(board => {
+        if (board.id === action.payload.id) {
+          return action.payload
+        } else {
+          return board
+        }
+      })
+    }
 
   },
   extraReducers: (builder) => {
@@ -357,5 +383,5 @@ export const boardsSlice = createSlice({
 });
 
 
-export const { addBoardColumns, incrementBoardColumnSize, setCurrentSelectedBoard, AddBoard } = boardsSlice.actions
+export const { addBoardColumns, incrementBoardColumnSize, setCurrentSelectedBoard, AddBoard, UpdateBoard } = boardsSlice.actions
 export default boardsSlice.reducer;
