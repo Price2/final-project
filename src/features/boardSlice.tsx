@@ -313,6 +313,20 @@ export const updateBoardName = createAsyncThunk(
 );
 
 
+export const deleteBoard = createAsyncThunk(
+  "boards/deleteBoard",
+  async (board_id:string, thunkAPI) => {
+    try {
+      const response = await fetch(`https://api.trello.com/1/boards/${board_id}?key=${API_Authentication.key}&token=${API_Authentication.token}`
+        , { method: 'DELETE' });
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue("Failed to delete board.");
+    }
+  }
+);
+
 export interface BoardsInitialState {
   AllBoards: RootObject[];
   boardColumns: string[];

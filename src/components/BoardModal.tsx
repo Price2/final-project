@@ -132,10 +132,8 @@ export default function ModalForm() {
     const [removedList, setRemovedList] = React.useState<any>([]);
     const boardList = useSelector((state: RootState) => state.boards.boardColumns);
     const selectedBoard = useSelector((state: RootState) => state.boards.selectedBoard);
-    const AllBoards = useSelector((state: RootState) => state.boards.AllBoards);
     const modalToggle = useSelector((state: RootState) => state.modals);
     const dispatch: AppDispatch = useAppDispatch();
-    const myRef = React.useRef<HTMLInputElement | any>([]);
 
     const { fields, append, prepend, remove, swap, move, insert } = useFieldArray<FormValues>({
         control,
@@ -400,7 +398,6 @@ export default function ModalForm() {
                                                     size="small"
                                                     onBlur={onBlur}
                                                     onChange={onChange}
-                                                    ref={(e) => { ref(e); myRef.current.push(uuid()) }}
                                                     value={value}
                                                     error={!value}
                                                     type='text'

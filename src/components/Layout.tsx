@@ -20,7 +20,7 @@ import { Button } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { AppDispatch, RootState, useAppDispatch } from '../app/store';
 import BoardModal from './BoardModal';
-import { toggleCreateBoard, toggleEditBoard } from '../features/modalSlice';
+import { toggleCreateBoard, toggleDeleteBoard, toggleEditBoard } from '../features/modalSlice';
 import { fetchSelectedBoard, setCurrentSelectedBoard } from '../features/boardSlice';
 
 const drawerWidth = 240;
@@ -179,7 +179,13 @@ export default function PersistentDrawerLeft({children}: Props) {
     }
 
     const handleEditBoard = () => {
+        setAnchorEl(null);
         dispatch(toggleEditBoard(true))
+    }
+
+    const handleDeleteBoard = () => {
+        setAnchorEl(null);
+        dispatch(toggleDeleteBoard(true))
     }
 
 
@@ -236,7 +242,7 @@ export default function PersistentDrawerLeft({children}: Props) {
                             <MenuItem onClick={handleEditBoard} disableRipple>
                                 Edit Board
                             </MenuItem>
-                            <MenuItem onClick={handleClose} disableRipple sx={{ color: 'red' }}>
+                            <MenuItem onClick={handleDeleteBoard} disableRipple sx={{ color: 'red' }}>
                                 Delete Board
                             </MenuItem>
 

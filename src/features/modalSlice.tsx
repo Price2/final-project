@@ -30,13 +30,17 @@ export const modalSlice = createSlice({
         },
         toggleEditBoard: (state, action) => {
             state.editBoardToggle = action.payload
+        },
+        toggleDeleteBoard: (state, action) => {
+            state.deleteBoardToggle = action.payload
         }
+
   
     },
     
 });
   
 
-export const { toggleCreateBoard, toggleEditBoard } = modalSlice.actions;
+export const { toggleCreateBoard, toggleEditBoard, toggleDeleteBoard } = modalSlice.actions;
 export default modalSlice.reducer;
 
