@@ -24,16 +24,16 @@ export default function Home() {
     const dispatch: AppDispatch = useAppDispatch();
 
 
-    console.log("selectedBoard ", selectedBoard);
+    console.log("selectedBoard ", selectedBoardList);
 
     return (
-        <div style={{ width: '100%', display: "flex", flexWrap: "nowrap" }}>
+        <div style={{ width: '100%', display: "flex", flexWrap: "nowrap", columnGap: '80px', }}>
 
 
             <>
                 {selectedBoard.length && selectedBoard[0]?.lists?.length ?
                     <>
-                        {selectedBoardList.map((board: any, idx: string) => {
+                        {selectedBoardList.map((list: any, idx: string) => {
 
                             return (
 
@@ -47,38 +47,56 @@ export default function Home() {
                                         m: 1,
                                         height: 200,
                                         borderRadius: 1,
+                                        width: '20%',
                                     }}
                                 >
                                     <div>
 
-                                        <p style={{ display: "flex", alignItems: 'center',  fontSize: '12px',
-                                                fontStyle: 'normal',
-                                                fontWeight: '700',
-                                                lineHeight: 'normal',
-                                                letterSpacing: '2.4px',
-                                                color: 'var(--medium-grey, #828FA3)', }}>
+                                        <p style={{
+                                            display: "flex", alignItems: 'center', fontSize: '12px',
+                                            fontStyle: 'normal',
+                                            fontWeight: '700',
+                                            lineHeight: 'normal',
+                                            letterSpacing: '2.4px',
+                                            color: 'var(--medium-grey, #828FA3)',
+                                        }}>
                                             <span style={{
                                                 width: 15,
                                                 height: 15,
                                                 backgroundColor: `${getRandomColor()}`,
                                                 borderRadius: '50%',
                                                 marginRight: '12px',
-                                        
 
-                                            }} /> {board.name} ({selectedBoardList.length})</p>
-                                        <Card sx={{
-                                            minWidth: 275, width: '300px', height: "90px", boxShadow: '0px 4px 6px 0px rgba(54, 78, 126, 0.10)',
-                                            borderRadius: '8px',
 
-                                        }}>
-                                            <CardContent>
-                                                <Typography sx={{ fontSize: 14, }} color="text.secondary" gutterBottom>
-                                                    Word of the Day
-                                                </Typography>
+                                            }} /> {list.name} ({selectedBoardList.length})</p>
 
-                                            </CardContent>
+                                        {selectedBoard[0].cards.map((card: any) => {
 
-                                        </Card>
+                                            return card.idList === list.id ?
+                                                <Card sx={{
+                                                    minWidth: 275, width: '300px', height: "90px", boxShadow: '0px 4px 6px 0px rgba(54, 78, 126, 0.10)',
+                                                    borderRadius: '8px',
+                                                    mb: '20px',
+
+                                                }}>
+                                                    <CardContent>
+                                                        <Typography sx={{
+                                                            color: 'var(--black, #000112)',
+                                                            fontFamily: 'Plus Jakarta Sans',
+                                                            fontSize: '15px',
+                                                            fontStyle: 'normal',
+                                                            fontWeight: '700',
+                                                            lineHeight: 'normal',
+                                                            
+                                                        }} color="text.secondary" gutterBottom>
+                                                            {card.name}
+                                                        </Typography>
+
+                                                    </CardContent>
+
+                                                </Card> : ""
+
+                                        })}
 
                                     </div>
                                 </Box>
@@ -103,12 +121,10 @@ export default function Home() {
                                     minWidth: 275,
                                     width: '280px',
                                     height: "100vh",
-                                    marginTop: "55px",
+                                    marginTop: "12px",
                                     cursor: "pointer",
                                     backgroundColor: "#E9EFFA",
-
-
-                                }} className="test">
+                                }}>
                                     <CardContent sx={{
                                         position: 'relative',
                                     }}>

@@ -390,7 +390,7 @@ export const boardsSlice = createSlice({
       .addCase(fetchBoards.fulfilled, (state, action:any) => {
         state.loading = false;
         state.AllBoards = action.payload;
-        state.selectedBoard = [action.payload[0]];
+        // state.selectedBoard = [action.payload[0]];
       })
       .addCase(fetchBoards.rejected, (state, action) => {
         state.loading = false;

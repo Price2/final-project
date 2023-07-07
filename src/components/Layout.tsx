@@ -173,8 +173,9 @@ export default function PersistentDrawerLeft({children}: Props) {
 
     const setSelectedBoard = (board: any) => {
         console.log("board selected ", board);
+        
         dispatch(fetchSelectedBoard(board.id))
-        dispatch(setCurrentSelectedBoard(board))
+        // dispatch(setCurrentSelectedBoard(board))
         
     }
 

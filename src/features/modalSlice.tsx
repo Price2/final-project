@@ -5,6 +5,7 @@ export interface ModalInitialState {
     editBoardToggle: boolean;
     deleteBoardToggle: boolean;
     addTasksToggle: boolean;
+    viewTasksToggle: boolean;
     editTasksToggle: boolean;
     deleteTasksToggle: boolean;
   
@@ -15,6 +16,7 @@ const initialState: ModalInitialState = {
     editBoardToggle: false,
     deleteBoardToggle: false,
     addTasksToggle: false,
+    viewTasksToggle: false,
     editTasksToggle: false,
     deleteTasksToggle: false,
     
