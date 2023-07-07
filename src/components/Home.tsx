@@ -8,6 +8,7 @@ import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import getRandomColor from "../helperfunctions/helperfunctions";
+import { setCurrentSelectedCard } from "../features/boardSlice";
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -25,6 +26,14 @@ export default function Home() {
 
 
     console.log("selectedBoard ", selectedBoardList);
+
+
+    const handleToggleViewCard = (card:{}) => {
+        console.log("card selected ", card)
+        dispatch(setCurrentSelectedCard(card))
+    }
+
+    debugger;
 
     return (
         <div style={{ width: '100%', display: "flex", flexWrap: "nowrap", columnGap: '80px', }}>
@@ -59,6 +68,7 @@ export default function Home() {
                                             lineHeight: 'normal',
                                             letterSpacing: '2.4px',
                                             color: 'var(--medium-grey, #828FA3)',
+                                            marginBottom: '24px',
                                         }}>
                                             <span style={{
                                                 width: 15,
@@ -70,13 +80,14 @@ export default function Home() {
 
                                             }} /> {list.name} ({selectedBoardList.length})</p>
 
-                                        {selectedBoard[0].cards.map((card: any) => {
+                                        {selectedBoard[0].cards.map((card: any, idx:string) => {
 
                                             return card.idList === list.id ?
-                                                <Card sx={{
+                                                <Card key={idx} onClick={()=> handleToggleViewCard(card)} sx={{
                                                     minWidth: 275, width: '300px', height: "90px", boxShadow: '0px 4px 6px 0px rgba(54, 78, 126, 0.10)',
                                                     borderRadius: '8px',
                                                     mb: '20px',
+                                                    cursor:'pointer'
 
                                                 }}>
                                                     <CardContent>
@@ -121,7 +132,7 @@ export default function Home() {
                                     minWidth: 275,
                                     width: '280px',
                                     height: "100vh",
-                                    marginTop: "12px",
+                                    marginTop: "45px",
                                     cursor: "pointer",
                                     backgroundColor: "#E9EFFA",
                                 }}>

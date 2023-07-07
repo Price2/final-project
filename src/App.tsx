@@ -5,7 +5,7 @@ import { fetchBoards, fetchSelectedBoard } from './features/boardSlice';
 import BoardModal from './components/BoardModal';
 import Home from './components/Home';
 import WarningDialog from './components/WarningDialog';
-
+import TaskModalAdd from './components/TaskModalAdd';
 function App() {
 
   const dispatch: AppDispatch = useAppDispatch();
@@ -21,6 +21,7 @@ function App() {
   return (
     <Layout>
       <BoardModal />
+      <TaskModalAdd/>
       <Home />
       <WarningDialog/>
     </Layout>

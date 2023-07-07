@@ -8,8 +8,8 @@ export interface ModalInitialState {
     viewTasksToggle: boolean;
     editTasksToggle: boolean;
     deleteTasksToggle: boolean;
-  
-  }
+
+}
 
 const initialState: ModalInitialState = {
     addNewBoardToggle: false,
@@ -19,7 +19,7 @@ const initialState: ModalInitialState = {
     viewTasksToggle: false,
     editTasksToggle: false,
     deleteTasksToggle: false,
-    
+
 }
 
 
@@ -35,14 +35,17 @@ export const modalSlice = createSlice({
         },
         toggleDeleteBoard: (state, action) => {
             state.deleteBoardToggle = action.payload
+        },
+        toggleAddTasks: (state, action) => {
+            state.addTasksToggle = action.payload
         }
 
-  
-    },
-    
-});
-  
 
-export const { toggleCreateBoard, toggleEditBoard, toggleDeleteBoard } = modalSlice.actions;
+    },
+
+});
+
+
+export const { toggleCreateBoard, toggleEditBoard, toggleDeleteBoard, toggleAddTasks } = modalSlice.actions;
 export default modalSlice.reducer;
 

@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit"
 
 
 export interface RootObject {
+  idList: string;
   lists: any;
   cards: any;
   closed: boolean;
@@ -252,8 +253,8 @@ export const fetchBoardById = createAsyncThunk(
 
 
 export const createListForBoard = createAsyncThunk(
-  "boards/createLists",
-  async ({ list_name , board_id} : {list_name: string, board_id: string}, thunkAPI) => {
+  "lists/createLists",
+  async ({ list_name, board_id }: { list_name: string, board_id: string }, thunkAPI) => {
     try {
       const response = await fetch(`https://api.trello.com/1/lists?name=${list_name}&idBoard=${board_id}&key=${API_Authentication.key}&token=${API_Authentication.token}`
         , { method: 'POST' });
@@ -268,8 +269,8 @@ export const createListForBoard = createAsyncThunk(
 
 
 export const deleteBoardList = createAsyncThunk(
-  "boards/deleteBoardList",
-  async (list_id:string, thunkAPI) => {
+  "lists/deleteBoardList",
+  async (list_id: string, thunkAPI) => {
     try {
       const response = await fetch(`https://api.trello.com/1/lists/${list_id}?&key=${API_Authentication.key}&token=${API_Authentication.token}&closed=true`
         , { method: 'PUT' });
@@ -284,8 +285,8 @@ export const deleteBoardList = createAsyncThunk(
 
 
 export const updateBoardList = createAsyncThunk(
-  "boards/updateBoardList",
-  async ({list_id, listName} : {list_id : string, listName: string}, thunkAPI) => {
+  "lists/updateBoardList",
+  async ({ list_id, listName }: { list_id: string, listName: string }, thunkAPI) => {
     try {
       const response = await fetch(`https://api.trello.com/1/lists/${list_id}?&name=${listName}&key=${API_Authentication.key}&token=${API_Authentication.token}`
         , { method: 'PUT' });
@@ -300,7 +301,7 @@ export const updateBoardList = createAsyncThunk(
 
 export const updateBoardName = createAsyncThunk(
   "boards/updateBoardName",
-  async ({board_id, board_name} : {board_id : string, board_name: string}, thunkAPI) => {
+  async ({ board_id, board_name }: { board_id: string, board_name: string }, thunkAPI) => {
     try {
       const response = await fetch(`https://api.trello.com/1/boards/${board_id}?&name=${board_name}&key=${API_Authentication.key}&token=${API_Authentication.token}`
         , { method: 'PUT' });
@@ -315,7 +316,7 @@ export const updateBoardName = createAsyncThunk(
 
 export const deleteBoard = createAsyncThunk(
   "boards/deleteBoard",
-  async (board_id:string, thunkAPI) => {
+  async (board_id: string, thunkAPI) => {
     try {
       const response = await fetch(`https://api.trello.com/1/boards/${board_id}?key=${API_Authentication.key}&token=${API_Authentication.token}`
         , { method: 'DELETE' });
@@ -323,6 +324,21 @@ export const deleteBoard = createAsyncThunk(
       return data;
     } catch (error) {
       return thunkAPI.rejectWithValue("Failed to delete board.");
+    }
+  }
+);
+
+
+export const createCard = createAsyncThunk(
+  "cards/createCard",
+  async ({ card_name, list_id, card_desc }: { card_name: string, list_id: string, card_desc?:string }, thunkAPI) => {
+    try {
+      const response = await fetch(`https://api.trello.com/1/cards?idList=${list_id}&name=${card_name}&desc=${card_desc}&key=${API_Authentication.key}&token=${API_Authentication.token}`
+        , { method: 'POST' });
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue("Failed to create card.");
     }
   }
 );
@@ -364,7 +380,7 @@ export const boardsSlice = createSlice({
     setCurrentSelectedBoard: (state, action) => {
       state.selectedBoard = action.payload
     },
-    AddBoard: (state, action) => { 
+    AddBoard: (state, action) => {
       console.log("action payload ", action.payload)
       state.AllBoards.push(action.payload)
     },
@@ -378,6 +394,10 @@ export const boardsSlice = createSlice({
           return board
         }
       })
+    },
+
+    setCurrentSelectedCard: (state, action) => {
+      state.selectedBoardCard = [action.payload]
     }
 
   },
@@ -387,7 +407,7 @@ export const boardsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchBoards.fulfilled, (state, action:any) => {
+      .addCase(fetchBoards.fulfilled, (state, action: any) => {
         state.loading = false;
         state.AllBoards = action.payload;
         // state.selectedBoard = [action.payload[0]];
@@ -399,17 +419,17 @@ export const boardsSlice = createSlice({
       .addCase(createBoard.rejected, (state, action) => {
         state.error = action.error.message || 'Something went wrong';
       })
-    .addCase(fetchSelectedBoard.pending, (state) => {
-            state.loading = true;
-            state.error = null;
-    })
-      .addCase(fetchSelectedBoard.fulfilled, (state, action:any) => {
+      .addCase(fetchSelectedBoard.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchSelectedBoard.fulfilled, (state, action: any) => {
         state.loading = false;
         state.selectedBoard = [action.payload]
-    })
+      })
   },
 });
 
 
-export const { addBoardColumns, incrementBoardColumnSize, setCurrentSelectedBoard, AddBoard, UpdateBoard } = boardsSlice.actions
+export const { addBoardColumns, incrementBoardColumnSize, setCurrentSelectedBoard, AddBoard, UpdateBoard, setCurrentSelectedCard } = boardsSlice.actions
 export default boardsSlice.reducer;

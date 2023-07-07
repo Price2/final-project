@@ -20,7 +20,7 @@ import { Button } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { AppDispatch, RootState, useAppDispatch } from '../app/store';
 import BoardModal from './BoardModal';
-import { toggleCreateBoard, toggleDeleteBoard, toggleEditBoard } from '../features/modalSlice';
+import { toggleAddTasks, toggleCreateBoard, toggleDeleteBoard, toggleEditBoard } from '../features/modalSlice';
 import { fetchSelectedBoard, setCurrentSelectedBoard } from '../features/boardSlice';
 
 const drawerWidth = 240;
@@ -189,6 +189,9 @@ export default function PersistentDrawerLeft({children}: Props) {
         dispatch(toggleDeleteBoard(true))
     }
 
+    const toggleAddTask = () => {
+        dispatch(toggleAddTasks(true))
+    }
 
     return (
         <Box sx={{ display: 'flex' }}>
@@ -207,7 +210,7 @@ export default function PersistentDrawerLeft({children}: Props) {
                     </div>
 
                     <div>
-                        <Button sx={{
+                        <Button onClick={toggleAddTask} sx={{
                             borderRadius: '24px',
                             background: 'var(--main-purple, #635FC7)',
                             width: '164px',
