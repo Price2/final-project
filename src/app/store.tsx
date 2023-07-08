@@ -2,11 +2,13 @@ import { configureStore } from '@reduxjs/toolkit'
 import board from '../features/boardSlice'
 import { useDispatch } from "react-redux";
 import modal from '../features/modalSlice';
+import mode from '../features/modeSlice';
 
 export const store = configureStore({
   reducer: {
     boards: board,
-    modals: modal
+    modals: modal,
+    mode: mode
   }
 })
 

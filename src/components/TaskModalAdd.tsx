@@ -135,6 +135,8 @@ export default function ModalForm() {
     const selectedBoard = useSelector((state: RootState) => state.boards.selectedBoard);
     const modalToggle = useSelector((state: RootState) => state.modals);
     const selectedCard = useSelector((state: RootState) => state.boards.selectedBoardCard);
+    const mode = useSelector((state: RootState) => state.mode.mode);
+
     const dispatch: AppDispatch = useAppDispatch();
     const form = useForm<FormValues>({
         defaultValues: {
@@ -196,15 +198,19 @@ export default function ModalForm() {
     return (
         <>
             <Dialog open={open} onClose={handleClose} TransitionComponent={Transition}>
-                <form onSubmit={handleSubmit(onSubmit)} style={{ padding: "50px 20px" }}>
+                <form onSubmit={handleSubmit(onSubmit)} style={{
+                    padding: "50px 20px",
+                    backgroundColor: mode === 'dark-mode' ? "#2B2C37" : ""
+                }}>
 
                     <DialogTitle sx={{
-                        color: ' var(--black, #000112)',
+                        color: mode === 'dark-mode' ? "white" : ' var(--black, #000112)',
                         fontSize: '18px',
                         fontFamily: ' Plus Jakarta Sans',
                         fontStyle: 'normal',
                         fontWeight: '700',
                         lineHeight: 'normal',
+
                     }}>Add New Task</DialogTitle>
                     <DialogContent>
 
@@ -214,7 +220,7 @@ export default function ModalForm() {
                             render={({ field: { onChange, onBlur, value, ref } }) => (
                                 <div>
                                     <InputLabel shrink htmlFor="bootstrap-input" sx={{
-                                        color: ' var(--medium-grey, #828FA3)',
+                                        color: mode === 'dark-mode' ? "white" : ' var(--medium-grey, #828FA3)',
                                         fontSize: '16px',
                                         fontFamily: ' Plus Jakarta Sans',
                                         fontStyle: 'normal',
@@ -237,13 +243,20 @@ export default function ModalForm() {
                                         id="fullname-input"
                                         helperText={!value ? "Required" : ""}
                                         required
+
                                         sx={{
                                             width: "550px",
                                             maxWidth: "100%",
                                             height: '40px',
                                             minWidth: '0',
                                             mb: "48px",
-                                            padding: "0px"
+                                            padding: "0px",
+                                            "& input::placeholder": {
+                                                color: mode === 'dark-mode' ? "white" : ""
+                                            },
+                                            ' .MuiInputBase-input': {
+                                                color: mode==='dark-mode'?'white':""
+                                            },
                                         }}
                                     />
 
@@ -258,7 +271,7 @@ export default function ModalForm() {
                             render={({ field: { onChange, onBlur, value, ref } }) => (
                                 <div>
                                     <InputLabel shrink htmlFor="bootstrap-input" sx={{
-                                        color: ' var(--medium-grey, #828FA3)',
+                                        color: mode === 'dark-mode' ? "white" : ' var(--medium-grey, #828FA3)',
                                         fontSize: '16px',
                                         fontFamily: ' Plus Jakarta Sans',
                                         fontStyle: 'normal',
@@ -288,8 +301,18 @@ export default function ModalForm() {
                                             height: '40px',
                                             minWidth: '0',
                                             mb: "65px",
-                                            padding: "0px"
+                                            padding: "0px",
+                                            "& input::placeholder": {
+                                                color: mode === 'dark-mode' ? "white" : ""
+                                            },
+
+                                            ' .MuiInputBase-input': {
+                                                color: mode==='dark-mode'?'white':""
+                                            },
+
                                         }}
+
+
                                     />
 
                                 </div>
@@ -299,7 +322,7 @@ export default function ModalForm() {
 
 
                         <InputLabel shrink htmlFor="bootstrap-input" sx={{
-                            color: ' var(--medium-grey, #828FA3)',
+                            color: mode === 'dark-mode' ? "white" : ' var(--medium-grey, #828FA3)',
                             fontSize: '16px',
                             fontFamily: ' Plus Jakarta Sans',
                             fontStyle: 'normal',
@@ -334,7 +357,7 @@ export default function ModalForm() {
 
                                         })}
                                     </Select>
-                                    <FormHelperText>{!value ? "Required" : ""}</FormHelperText>
+                                    <FormHelperText sx={{color:'#d32f2f'}}>{!value ? "Required" : ""}</FormHelperText>
                                 </FormControl>
 
                             )}
@@ -354,7 +377,10 @@ export default function ModalForm() {
                                 borderRadius: '20px',
                                 backgroundColor: 'var(--main-purple, #635FC7)',
                                 width: '100%',
-                                py: "10px"
+                                py: "10px",
+                                ":hover": {
+                                    backgroundColor: 'var(--main-purple-hover, #A8A4FF)'
+                                }
                             }}
                             type="submit"><span className='btn-text' style={{ color: "white" }}>Create Task</span></Button>
 

@@ -148,6 +148,7 @@ export default function ModalForm() {
     const selectedBoard = useSelector((state: RootState) => state.boards.selectedBoard);
     const modalToggle = useSelector((state: RootState) => state.modals);
     const dispatch: AppDispatch = useAppDispatch();
+    const mode = useSelector((state: RootState) => state.mode.mode);
 
     const { fields, append, prepend, remove, swap, move, insert } = useFieldArray<FormValues>({
         control,
@@ -199,7 +200,9 @@ export default function ModalForm() {
 
     const onSubmit = (data: any) => {
         console.log("submitted ", data)
+        debugger;
         const boardCreation = async () => {
+            debugger;
             if (data.listsName.length) {
                 const boardCreated = await dispatch(createBoard(data.board_name))
                 const { id } = boardCreated.payload;
@@ -219,34 +222,6 @@ export default function ModalForm() {
         if (modalToggle.editBoardToggle) {
             const updates_found = []
             boardUpdate(data)
-            // for (const listToRemove in removedList) {
-            //     const listname = selectedBoard[0].lists.filter((list: any) => list.name === removedList[listToRemove].name)[0]
-            //     dispatch(deleteBoardList(listname.id))
-            //     console.log("same name? ", listname)
-            // }
-            // console.log("updated ", data)
-
-
-
-            // for (const key in data.listsName) {
-            //     debugger;
-            //     if (data.listsName[key]?.id) {
-            //         dispatch(updateBoardList({ list_id: data.listsName[key].id, listName: data.listsName[key].name }))
-            //     }
-            //     else {
-            //         dispatch(createListForBoard({list_name: data.listsName[key].name, board_id: selectedBoard[0].id}))
-            //     }
-            //     console.log("same name? ")
-            // }
-
-
-            // const reFetchBoard = async () => {
-            //     debugger;
-            //     const reFetchBoard: any = await dispatch(fetchSelectedBoard(selectedBoard[0].id))
-            //     dispatch(UpdateBoard(reFetchBoard.payload))
-            //     console.log("updated ", reFetchBoard)
-            // }
-            // reFetchBoard()
 
 
             dispatch(toggleEditBoard(false))
@@ -259,16 +234,20 @@ export default function ModalForm() {
     }
 
     const boardUpdate = (data: any) => {
-        
+        debugger
         if (modalToggle.editBoardToggle) {
             const updates_found = []
 
             if (data.board_name !== selectedBoard[0].name) {
-                dispatch(updateBoardName({board_id: selectedBoard[0].id, board_name: data.board_name}))
+                dispatch(updateBoardName({ board_id: selectedBoard[0].id, board_name: data.board_name }))
             }
-            for (const listToRemove in removedList) {
-                const listname = selectedBoard[0].lists.filter((list: any) => list.name === removedList[listToRemove].name)[0]
-                dispatch(deleteBoardList(listname.id))
+            if (removedList.length) {
+                for (const listToRemove in removedList) {
+                    debugger;
+                    const listname = selectedBoard[0].lists.filter((list: any) => list.name === removedList[listToRemove].name)[0]
+                    dispatch(deleteBoardList(listname.id))
+                }
+                
             }
 
 
@@ -284,8 +263,11 @@ export default function ModalForm() {
 
 
             const reFetchBoard = async () => {
-                const reFetchBoard: any = await dispatch(fetchSelectedBoard(selectedBoard[0].id))
-                dispatch(UpdateBoard(reFetchBoard.payload))
+                setTimeout( async() => {
+                    const reFetchBoard: any = await dispatch(fetchSelectedBoard(selectedBoard[0].id))
+                    dispatch(UpdateBoard(reFetchBoard.payload))
+                    
+                }, 1000);
             }
             reFetchBoard()
         }
@@ -309,10 +291,12 @@ export default function ModalForm() {
         <>
             <Dialog open={open} onClose={handleClose} TransitionComponent={Transition}
                 keepMounted>
-                <form onSubmit={handleSubmit(onSubmit)}>
+                <form onSubmit={handleSubmit(onSubmit)} style={{
+                    backgroundColor: mode === 'dark-mode' ? "#2B2C37" : ""
+                }}>
 
                     <DialogTitle sx={{
-                        color: ' var(--black, #000112)',
+                        color: mode === 'dark-mode' ? "white" : ' var(--black, #000112)',
                         fontSize: '18px',
                         fontFamily: ' Plus Jakarta Sans',
                         fontStyle: 'normal',
@@ -328,12 +312,13 @@ export default function ModalForm() {
                             render={({ field: { onChange, onBlur, value, ref } }) => (
                                 <div>
                                     <InputLabel shrink htmlFor="bootstrap-input" sx={{
-                                        color: ' var(--medium-grey, #828FA3)',
+                                        color: mode === 'dark-mode' ? "white" : ' var(--medium-grey, #828FA3)',
                                         fontSize: '16px',
                                         fontFamily: ' Plus Jakarta Sans',
                                         fontStyle: 'normal',
                                         fontWeight: '700',
                                         lineHeight: 'normal',
+
                                     }}>
                                         {modalToggle.editBoardToggle ? "Board Name" : "Name"}
                                     </InputLabel>
@@ -357,14 +342,27 @@ export default function ModalForm() {
                                             height: '40px',
                                             minWidth: '0',
                                             mb: "48px",
-                                            padding: "0px"
+                                            padding: "0px",
+                                            ' .MuiInputBase-input': {
+                                                color: mode === 'dark-mode' ? 'white' : ""
+                                            },
+                                            '.MuiOutlinedInput-notchedOutline': {
+                                                borderColor: mode === 'dark-mode' ? 'rgba(228, 219, 233, 0.25)' : "",
+
+                                            },
+                                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                borderColor: mode === 'dark-mode' ? 'rgba(228, 219, 233, 0.25)' : "",
+                                            },
+                                            '&:hover .MuiOutlinedInput-notchedOutline': {
+                                                borderColor: mode === 'dark-mode' ? 'rgba(228, 219, 233, 0.25)' : "",
+                                            },
                                         }}
                                     />
                                 </div>
                             )}
                         />
                         <DialogContentText sx={{
-                            color: 'var(--medium-grey, #828FA3)',
+                            color: mode === 'dark-mode' ? "white" : 'var(--medium-grey, #828FA3)',
                             fontSize: '12px',
                             fontFamily: 'Plus Jakarta Sans',
                             fontStyle: 'normal',
@@ -402,7 +400,21 @@ export default function ModalForm() {
                                                         height: '40px',
                                                         minWidth: '0',
                                                         // mb: "48px",
-                                                        padding: "0px"
+                                                        padding: "0px",
+
+                                                        ' .MuiInputBase-input': {
+                                                            color: mode === 'dark-mode' ? 'white' : ""
+                                                        },
+                                                        '.MuiOutlinedInput-notchedOutline': {
+                                                            borderColor: mode === 'dark-mode' ? 'rgba(228, 219, 233, 0.25)' : "",
+
+                                                        },
+                                                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                            borderColor: mode === 'dark-mode' ? 'rgba(228, 219, 233, 0.25)' : "",
+                                                        },
+                                                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                                                            borderColor: mode === 'dark-mode' ? 'rgba(228, 219, 233, 0.25)' : "",
+                                                        },
                                                     }}
                                                 />
                                                 <i onClick={() => { handleRemove(field, idx) }} style={{
@@ -430,10 +442,13 @@ export default function ModalForm() {
                     }}>
                         <Button sx={{
                             borderRadius: '20px',
-                            backgroundColor: 'rgba(99, 95, 199, 0.10)',
+                            backgroundColor: mode === 'dark-mode' ? "white" : 'rgba(99, 95, 199, 0.10)',
                             width: '100%',
                             py: "10px",
-                            mb: "24px"
+                            mb: "24px",
+                            "&:hover": {
+                                backgroundColor: mode === 'light-mode' ? "rgba(99, 95, 199, 0.25)" : "white"
+                            }
                         }} onClick={() => append({ name: "" })}><span className='btn-text'>+ Add New Column</span></Button>
 
                         {modalToggle.editBoardToggle ?
@@ -442,7 +457,10 @@ export default function ModalForm() {
                                     borderRadius: '20px',
                                     backgroundColor: 'var(--main-purple, #635FC7)',
                                     width: '100%',
-                                    py: "10px"
+                                    py: "10px",
+                                    "&:hover": {
+                                        backgroundColor: "#A8A4FF"
+                                    }
                                 }}
                                 type="submit"><span className='btn-text' style={{ color: "white" }}>Save Changes</span></Button>
                             :

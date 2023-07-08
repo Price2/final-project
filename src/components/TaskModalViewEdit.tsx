@@ -137,6 +137,8 @@ export default function ModalForm() {
     const selectedBoard = useSelector((state: RootState) => state.boards.selectedBoard);
     const selectedCard = useSelector((state: RootState) => state.boards.selectedBoardCard);
     const modalToggle = useSelector((state: RootState) => state.modals);
+    const mode = useSelector((state: RootState) => state.mode.mode);
+
     const dispatch: AppDispatch = useAppDispatch();
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const openDropDown = Boolean(anchorEl);
@@ -233,11 +235,15 @@ export default function ModalForm() {
     console.log("am i still open? ", open)
     return (
         <>
-            <Dialog open={open} onClose={handleClose} TransitionComponent={Transition} keepMounted>
-                
+            <Dialog open={open} onClose={handleClose} TransitionComponent={Transition} keepMounted
+
+            >
+
                 {modalToggle.viewTasksToggle &&
                     <>
-                        <form onSubmit={handleSubmit(onSubmit)} style={{ padding: '0px 10px' }}>
+                        <form onSubmit={handleSubmit(onSubmit)} style={{
+                            padding: '0px 10px', backgroundColor: mode === 'dark-mode' ? '#2B2C37' : ""
+                        }}>
 
                             <div style={{
                                 display: 'flex',
@@ -248,13 +254,14 @@ export default function ModalForm() {
                                 maxWidth: 'calc(100%)'
                             }}>
                                 <DialogTitle sx={{
-                                    color: ' var(--black, #000112)',
+                                    color: mode === 'light-mode' ? 'var(--black, #000112)' : "white",
                                     fontSize: '18px',
                                     fontFamily: ' Plus Jakarta Sans',
                                     fontStyle: 'normal',
                                     fontWeight: '700',
                                     lineHeight: 'normal',
                                     pt: 0,
+
                                 }}>{selectedCard[0].name}</DialogTitle>
                                 <div >
                                     <IconButton
@@ -264,6 +271,9 @@ export default function ModalForm() {
                                         aria-expanded={openDropDown ? 'true' : undefined}
                                         aria-haspopup="true"
                                         onClick={handleDropDownClick}
+                                        sx={{
+                                            color: '#828FA3'
+                                        }}
                                     >
                                         <MoreVertIcon />
                                     </IconButton>
@@ -318,7 +328,7 @@ export default function ModalForm() {
                                 </DialogContentText>
                                 <div style={{ marginTop: '55px' }}>
                                     <InputLabel shrink htmlFor="bootstrap-input" sx={{
-                                        color: ' var(--medium-grey, #828FA3)',
+                                        color: mode === "dark-mode" ? "white" : ' var(--medium-grey, #828FA3)',
                                         fontSize: '16px',
                                         fontFamily: ' Plus Jakarta Sans',
                                         fontStyle: 'normal',
@@ -333,7 +343,7 @@ export default function ModalForm() {
                                         render={({ field: { onChange, onBlur, value },
                                             fieldState: { invalid, isTouched, isDirty, error },
                                         }) => (
-                                            <FormControl required sx={{ mt: 0, width: "100%" }}>
+                                            <FormControl required sx={{ mt: 0, width: "100%", }}>
                                                 <Select
                                                     labelId="user-group-required-label"
                                                     id="user-group-required"
@@ -342,16 +352,37 @@ export default function ModalForm() {
                                                     error={!value}
                                                     onChange={({ target: { value } }) => onChange(value)}
                                                     value={value}
-                                                    // helperText={!value ? "Required" : ""}
-
                                                     required
+                                                    sx={{
+                                                        color: mode === 'dark-mode' ? "white" : "",
+                                                        '.MuiOutlinedInput-notchedOutline': {
+                                                            borderColor: mode==='dark-mode'?'rgba(228, 219, 233, 0.25)':"",
+
+                                                        },
+                                                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                            borderColor: mode==='dark-mode'?'rgba(228, 219, 233, 0.25)':"",
+                                                        },
+                                                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                                                            borderColor: mode==='dark-mode'?'rgba(228, 219, 233, 0.25)':"",
+                                                        },
+                                                        '.MuiSvgIcon-root ': {
+                                                            fill: mode==='dark-mode'?"white !important":"",
+                                                        },
+                                                       
+                                                        ' .MuiInputBase-input': {
+                                                            color: mode==='dark-mode'?'white':""
+                                                        },
+                                                    }}
+
                                                 >
                                                     {/* <MenuItem value="">
                                                         <em>None</em>
                                                     </MenuItem> */}
                                                     {selectedBoard[0].lists.map((list: any, idx: any) => {
 
-                                                        return (<MenuItem key={idx} value={list.id}>{list.name}</MenuItem>)
+                                                        return (<MenuItem key={idx} value={list.id} sx={{
+                                                
+                                                        }}>{list.name}</MenuItem>)
 
                                                     })}
                                                 </Select>
@@ -368,10 +399,12 @@ export default function ModalForm() {
                 }
                 {modalToggle.editTasksToggle &&
                     <>
-                        <form onSubmit={handleSubmit(onSubmit)}>
+                    <form onSubmit={handleSubmit(onSubmit)} style={{
+                        backgroundColor: mode === 'dark-mode' ? '#2B2C37' : ""
+                    }}>
 
                             <DialogTitle sx={{
-                                color: ' var(--black, #000112)',
+                                color: mode==='dark-mode'? "white": ' var(--black, #000112)',
                                 fontSize: '18px',
                                 fontFamily: ' Plus Jakarta Sans',
                                 fontStyle: 'normal',
@@ -386,7 +419,7 @@ export default function ModalForm() {
                                     render={({ field: { onChange, onBlur, value, ref } }) => (
                                         <div>
                                             <InputLabel shrink htmlFor="bootstrap-input" sx={{
-                                                color: ' var(--medium-grey, #828FA3)',
+                                                color: mode==='dark-mode'? "white":' var(--medium-grey, #828FA3)',
                                                 fontSize: '16px',
                                                 fontFamily: ' Plus Jakarta Sans',
                                                 fontStyle: 'normal',
@@ -415,7 +448,23 @@ export default function ModalForm() {
                                                     height: '40px',
                                                     minWidth: '0',
                                                     mb: "48px",
-                                                    padding: "0px"
+                                                    padding: "0px",
+                                                    ' .MuiInputBase-input': {
+                                                        color: mode==='dark-mode'? 'white' :""
+                                                    },
+                                                    '.MuiOutlinedInput-notchedOutline': {
+                                                        borderColor: mode==='dark-mode'?'rgba(228, 219, 233, 0.25)': "",
+
+                                                    },
+                                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                        borderColor:mode==='dark-mode'? 'rgba(228, 219, 233, 0.25)': "",
+                                                    },
+                                                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                                                        borderColor:mode==='dark-mode'? 'rgba(228, 219, 233, 0.25)':"",
+                                                    },
+                                                    '.MuiSvgIcon-root ': {
+                                                        fill: mode==='dark-mode'?"white !important":"",
+                                                    },
                                                 }}
                                             />
 
@@ -429,12 +478,14 @@ export default function ModalForm() {
                                     render={({ field: { onChange, onBlur, value, ref } }) => (
                                         <div>
                                             <InputLabel shrink htmlFor="bootstrap-input" sx={{
-                                                color: ' var(--medium-grey, #828FA3)',
+                                                color: mode==='dark-mode'? "white":' var(--medium-grey, #828FA3)',
                                                 fontSize: '16px',
                                                 fontFamily: ' Plus Jakarta Sans',
                                                 fontStyle: 'normal',
                                                 fontWeight: '700',
                                                 lineHeight: 'normal',
+                                                
+
                                             }}>
                                                 Description
                                             </InputLabel>
@@ -461,7 +512,21 @@ export default function ModalForm() {
                                                     height: '40px',
                                                     minWidth: '0',
                                                     mb: "120px",
-                                                    padding: "0px"
+                                                    padding: "0px",
+                                                    ' .MuiInputBase-input': {
+                                                        color: mode==='dark-mode'?'white':""
+                                                    },
+                                                    '.MuiOutlinedInput-notchedOutline': {
+                                                        borderColor: mode==='dark-mode'?'rgba(228, 219, 233, 0.25)':"",
+
+                                                    },
+                                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                        borderColor: mode==='dark-mode'?'rgba(228, 219, 233, 0.25)':"",
+                                                    },
+                                                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                                                        borderColor: mode==='dark-mode'?'rgba(228, 219, 233, 0.25)':"",
+                                                    },
+                                                   
                                                 }}
                                             />
 
@@ -469,7 +534,7 @@ export default function ModalForm() {
                                     )}
                                 />
                                 <InputLabel shrink htmlFor="bootstrap-input" sx={{
-                                    color: ' var(--medium-grey, #828FA3)',
+                                    color: mode==='dark-mode'? "white":' var(--medium-grey, #828FA3)',
                                     fontSize: '16px',
                                     fontFamily: ' Plus Jakarta Sans',
                                     fontStyle: 'normal',
@@ -484,6 +549,24 @@ export default function ModalForm() {
                                     render={({ field: { onChange, onBlur, value } }) => (
                                         <FormControl required sx={{ mt: 0, width: "100%" }}>
                                             <Select
+                                                sx={{
+                                                    ' .MuiInputBase-input': {
+                                                        color: mode==='dark-mode'?'white':""
+                                                    },
+                                                    '.MuiOutlinedInput-notchedOutline': {
+                                                        borderColor: mode==='dark-mode'?'rgba(228, 219, 233, 0.25)':"",
+
+                                                    },
+                                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                        borderColor: mode==='dark-mode'?'rgba(228, 219, 233, 0.25)':"",
+                                                    },
+                                                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                                                        borderColor: mode==='dark-mode'?'rgba(228, 219, 233, 0.25)':"",
+                                                    },
+                                                    '.MuiSvgIcon-root ': {
+                                                        fill: mode==='dark-mode'?"white !important":"",
+                                                    },
+                                                }}
                                                 labelId="user-group-required-label"
                                                 id="user-group-required"
                                                 size='small'
@@ -525,7 +608,7 @@ export default function ModalForm() {
                                         width: '100%',
                                         py: "10px",
                                         '&:hover': {
-                                            backgroundColor:' var(--main-purple-hover, #A8A4FF)',
+                                            backgroundColor: ' var(--main-purple-hover, #A8A4FF)',
                                         }
                                     }}
                                     type="submit"><span className='btn-text' style={{ color: "white" }}>Save Changes</span></Button>

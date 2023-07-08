@@ -9,7 +9,7 @@ import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import getRandomColor from "../helperfunctions/helperfunctions";
 import { setCurrentSelectedCard } from "../features/boardSlice";
-import { toggleViewTasks } from "../features/modalSlice";
+import { toggleEditBoard, toggleViewTasks } from "../features/modalSlice";
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -24,6 +24,7 @@ export default function Home() {
     const selectedBoard = useSelector((state: RootState) => state.boards.selectedBoard);
     const selectedBoardList = selectedBoard.length ? selectedBoard[0].lists : [];
     const dispatch: AppDispatch = useAppDispatch();
+    const mode = useSelector((state: RootState) => state.mode.mode);
 
 
     console.log("selectedBoard ", selectedBoardList);
@@ -35,9 +36,15 @@ export default function Home() {
         dispatch(toggleViewTasks(true))
     }
 
+    const toggleEditBaord = () => {
+        dispatch(toggleEditBoard(true))
+
+    }
 
     return (
-        <div style={{ width: '100%', display: "flex", flexWrap: "nowrap", columnGap: '80px', }}>
+        <div style={{ width: '100%', display: "flex", flexWrap: "nowrap", position:'relative', overflowX: "auto"
+
+    }} className="gapInSmallWidth">
 
 
             <>
@@ -57,7 +64,8 @@ export default function Home() {
                                         m: 1,
                                         height: 200,
                                         borderRadius: 1,
-                                        width: '20%',
+                                        maxWidth: '20%',
+                                        flex: 1, flexShrink: 0, flexBasis: 0,
                                     }}
                                 >
                                     <div>
@@ -85,23 +93,29 @@ export default function Home() {
 
                                             return card.idList === list.id ?
                                                 <Card key={idx} onClick={()=> handleToggleViewCard(card)} sx={{
-                                                    minWidth: 275, width: '300px', height: "90px",
+                                                    minWidth: "auto", width: '300px', height: "90px",
                                                     borderRadius: '8px',
                                                     mb: '20px',
                                                     cursor: 'pointer',
                                                     boxShadow: '0px 4px 6px 0px rgba(54, 78, 126, 0.10)',
-
+                                                    backgroundColor: mode==='dark-mode'? "#2B2C37":"",
+                                                    "&:hover": {
+                                                        "& .cardNameHover": {
+                                                            color:'#635FC7'
+                                                        }
+                                                    }
                                                 }}>
                                                     <CardContent>
                                                         <Typography sx={{
-                                                            color: 'var(--black, #000112)',
+                                                            color: mode==='light-mode'? 'var(--black, #000112)': "white",
                                                             fontFamily: 'Plus Jakarta Sans',
                                                             fontSize: '15px',
                                                             fontStyle: 'normal',
                                                             fontWeight: '700',
                                                             lineHeight: 'normal',
                                                             
-                                                        }} color="text.secondary" gutterBottom>
+                                                            
+                                                        }} color="text.secondary" gutterBottom className="cardNameHover">
                                                             {card.name}
                                                         </Typography>
 
@@ -130,18 +144,23 @@ export default function Home() {
                         >
                             <div>
 
-                                <Card sx={{
+                                <Card onClick={toggleEditBaord}  sx={{
                                     minWidth: 275,
                                     width: '280px',
                                     height: "100vh",
                                     marginTop: "45px",
                                     cursor: "pointer",
-                                    backgroundColor: "#E9EFFA",
+                                    background: mode==='light-mode'?"#E9EFFA":"linear-gradient(180deg, rgba(43, 44, 55, 0.25) 0%, rgba(43, 44, 55, 0.13) 100%)",
+                                    "&:hover": {
+                                        "& .create-column-text": {
+                                          color:' var(--main-purple, #635FC7);'
+                                      }
+                                    },
                                 }}>
                                     <CardContent sx={{
                                         position: 'relative',
                                     }}>
-                                        <p className="create-column-text testalso" >
+                                        <p className="create-column-text" >
                                             + New Column
                                         </p>
 
@@ -173,12 +192,15 @@ export default function Home() {
                                 fontWeight: '700',
                                 lineHeight: 'normal',
                             }}>This board is empty. Create a new column to get started.</p>
-                            <Button sx={{
+                            <Button onClick={toggleEditBaord} sx={{
                                 borderRadius: '24px',
                                 background: 'var(--main-purple, #635FC7)',
                                 width: '185px',
                                 height: '48px',
                                 textTransform: 'none',
+                                ':hover': {
+                                    backgroundColor:'#A8A4FF'
+                                }
 
                             }}>
                                 <span className="text-heading-M">+ Add New Column</span>

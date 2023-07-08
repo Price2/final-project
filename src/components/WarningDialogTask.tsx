@@ -30,6 +30,7 @@ export default function AlertDialog() {
     const modalToggle = useSelector((state: RootState) => state.modals);
     const selectedBoard = useSelector((state: RootState) => state.boards.selectedBoard);
     const selectedCard = useSelector((state: RootState) => state.boards.selectedBoardCard);
+    const mode = useSelector((state: RootState) => state.mode.mode);
 
     React.useEffect(() => {
         if (modalToggle.deleteTasksToggle) {
@@ -74,6 +75,11 @@ export default function AlertDialog() {
                     borderRadius: '6px',
 
                 }}
+                PaperProps={{
+                    style: {
+                      backgroundColor: mode==='dark-mode'? '#2B2C37':"",
+                    },
+                  }}
             >
                 <DialogTitle id="alert-dialog-title"
                     sx={{
@@ -123,9 +129,9 @@ export default function AlertDialog() {
                         width: '226px',
                         height: '42px',
                         borderRadius: '20px',
-                        background: 'rgba(99, 95, 199, 0.10)',
+                        backgroundColor: mode==='dark-mode'? "white" : 'rgba(99, 95, 199, 0.10)',
                         '&:hover': {
-                            backgroundColor: 'rgba(99, 95, 199, 0.25)',
+                            backgroundColor: mode==='dark-mode'?"white"  :'rgba(99, 95, 199, 0.25)',
                     }
                     }} onClick={handleClose} autoFocus>
                     <span style={{

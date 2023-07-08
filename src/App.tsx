@@ -15,7 +15,7 @@ function App() {
   React.useEffect(() => {
     const fetchOnLoad = async () => {
       const AllBoards = await dispatch<any>(fetchBoards())
-      const setSelectedBoard = await dispatch(fetchSelectedBoard(AllBoards.payload[0].id))
+      await dispatch(fetchSelectedBoard(AllBoards.payload[0].id))
     }
     fetchOnLoad()
       }, [dispatch])

@@ -29,6 +29,7 @@ export default function AlertDialog() {
     const dispatch: AppDispatch = useAppDispatch();
     const modalToggle = useSelector((state: RootState) => state.modals);
     const selectedBoard = useSelector((state: RootState) => state.boards.selectedBoard);
+    const mode = useSelector((state: RootState) => state.mode.mode);
 
     React.useEffect(() => {
         if (modalToggle.deleteBoardToggle) {
@@ -69,10 +70,15 @@ export default function AlertDialog() {
                     borderRadius: '6px',
 
                 }}
+                PaperProps={{
+                    style: {
+                      backgroundColor: mode==='dark-mode'? '#2B2C37':"",
+                    },
+                  }}
             >
                 <DialogTitle id="alert-dialog-title"
                     sx={{
-                        color: ' var(--red, #EA5555)',
+                        color:' var(--red, #EA5555)',
                         fontFamily: 'Plus Jakarta Sans',
                         fontSize: '18px',
                         fontStyle: 'normal',
@@ -84,7 +90,9 @@ export default function AlertDialog() {
                     Delete this board?
                 </DialogTitle>
                 <DialogContent sx={{ padding: '32px 50px' }}>
-                    <DialogContentText id="alert-dialog-description">
+                    <DialogContentText id="alert-dialog-description" sx={{
+                        color: "#828FA3"
+                    }}>
                         Are you sure you want to delete the ‘Platform Launch’ board? This action will remove all columns and tasks and cannot be reversed.
                     </DialogContentText>
                 </DialogContent>
@@ -111,7 +119,10 @@ export default function AlertDialog() {
                         width: '226px',
                         height: '42px',
                         borderRadius: '20px',
-                        background: 'rgba(99, 95, 199, 0.10)',
+                        background: mode === 'dark-mode' ? "white" : 'rgba(99, 95, 199, 0.10)',
+                        '&:hover': {
+                            backgroundColor: mode === 'dark-mode'? "white" : 'rgba(99, 95, 199, 0.10)',
+                        }
                     }} onClick={handleClose} autoFocus>
                         <span style={{
                             color: 'var(--main-purple, #635FC7)',

@@ -10,7 +10,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #F4F7FD !important;
+  overflow:auto;
 
 }
 
@@ -87,6 +87,32 @@ text-transform: none;
   line-height: normal;
   width: 100%;
 }
-.create-column-text:hover{
-  color: var(--main-purple, #635FC7);
+
+
+@media only screen and (min-width:1601px) and (max-width:2000px){
+  .gapInSmallWidth{
+    gap: 50px;
+  }
+}
+
+
+@media only screen and (min-width:1000px) and (max-width:1600px){
+  .gapInSmallWidth{
+    gap: 150px;
+  }
+}
+
+@media only screen and (min-width:600px) and (max-width:999px){
+
+  .gapInSmallWidth{
+    gap: 200px;
+  }
+}
+
+
+@media only screen and  (max-width:599px){
+
+  .gapInSmallWidth{
+    gap: 300px;
+  }
 }
