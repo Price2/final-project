@@ -9,6 +9,7 @@ import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import getRandomColor from "../helperfunctions/helperfunctions";
 import { setCurrentSelectedCard } from "../features/boardSlice";
+import { toggleViewTasks } from "../features/modalSlice";
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -31,9 +32,9 @@ export default function Home() {
     const handleToggleViewCard = (card:{}) => {
         console.log("card selected ", card)
         dispatch(setCurrentSelectedCard(card))
+        dispatch(toggleViewTasks(true))
     }
 
-    debugger;
 
     return (
         <div style={{ width: '100%', display: "flex", flexWrap: "nowrap", columnGap: '80px', }}>
@@ -84,10 +85,11 @@ export default function Home() {
 
                                             return card.idList === list.id ?
                                                 <Card key={idx} onClick={()=> handleToggleViewCard(card)} sx={{
-                                                    minWidth: 275, width: '300px', height: "90px", boxShadow: '0px 4px 6px 0px rgba(54, 78, 126, 0.10)',
+                                                    minWidth: 275, width: '300px', height: "90px",
                                                     borderRadius: '8px',
                                                     mb: '20px',
-                                                    cursor:'pointer'
+                                                    cursor: 'pointer',
+                                                    boxShadow: '0px 4px 6px 0px rgba(54, 78, 126, 0.10)',
 
                                                 }}>
                                                     <CardContent>

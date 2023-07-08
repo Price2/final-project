@@ -28,6 +28,8 @@ import { useAppDispatch, AppDispatch } from '../app/store';
 import { AddBoard, UpdateBoard, createBoard, createListForBoard, deleteBoardList, fetchBoardById, fetchSelectedBoard, incrementBoardColumnSize, updateBoardList, updateBoardName } from '../features/boardSlice';
 import { toggleCreateBoard, toggleEditBoard } from '../features/modalSlice';
 import { ReactJSXElement } from '@emotion/react/types/jsx-namespace';
+import { TransitionProps } from '@mui/material/transitions';
+import { Slide } from '@mui/material';
 
 
 
@@ -79,6 +81,18 @@ const BootstrapInput = styled(InputBase)(({ theme }) => ({
         },
     },
 }));
+
+
+const Transition = React.forwardRef(function Transition(
+    props: TransitionProps & {
+        children: React.ReactElement<any, any>;
+    },
+    ref: React.Ref<unknown>,
+) {
+    return <Slide direction="up" ref={ref} {...props} />;
+});
+
+
 
 
 function BootstrapDialogTitle(props: { [x: string]: any; children: any; onClose: any; }) {
@@ -293,7 +307,8 @@ export default function ModalForm() {
 
     return (
         <>
-            <Dialog open={open} onClose={handleClose}>
+            <Dialog open={open} onClose={handleClose} TransitionComponent={Transition}
+                keepMounted>
                 <form onSubmit={handleSubmit(onSubmit)}>
 
                     <DialogTitle sx={{

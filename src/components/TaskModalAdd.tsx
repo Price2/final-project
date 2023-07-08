@@ -29,7 +29,8 @@ import { AddBoard, UpdateBoard, createBoard, createCard, createListForBoard, del
 import { toggleAddTasks, toggleCreateBoard, toggleEditBoard } from '../features/modalSlice';
 import { ReactJSXElement } from '@emotion/react/types/jsx-namespace';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
-import { MenuItem } from '@mui/material';
+import { MenuItem, Slide } from '@mui/material';
+import { TransitionProps } from '@mui/material/transitions';
 
 
 
@@ -112,7 +113,14 @@ BootstrapDialogTitle.propTypes = {
     onClose: PropTypes.func.isRequired,
 };
 
-
+const Transition = React.forwardRef(function Transition(
+    props: TransitionProps & {
+        children: React.ReactElement<any, any>;
+    },
+    ref: React.Ref<unknown>,
+) {
+    return <Slide direction="up" ref={ref} {...props} />;
+});
 
 type FormValues = {
     title: string,
@@ -138,11 +146,6 @@ export default function ModalForm() {
     });
     const { control, handleSubmit, reset, getValues, setValue, formState } = form;
 
-    // const { fields, append, prepend, remove, swap, move, insert } = useFieldArray<FormValues>({
-    //     control,
-    //     name: "TaskInputs",
-
-    // });
 
     React.useEffect(() => {
         if (modalToggle.addTasksToggle) {
@@ -170,7 +173,6 @@ export default function ModalForm() {
         console.log("submitting task ", data)
 
         setOpen(false);
-        debugger;
         const createNewCard = async () => {
             debugger;
             await dispatch(createCard({ card_name: data.title, list_id: data.status, card_desc: data.description }))
@@ -193,7 +195,7 @@ export default function ModalForm() {
 
     return (
         <>
-            <Dialog open={open} onClose={handleClose}>
+            <Dialog open={open} onClose={handleClose} TransitionComponent={Transition}>
                 <form onSubmit={handleSubmit(onSubmit)} style={{ padding: "50px 20px" }}>
 
                     <DialogTitle sx={{

@@ -186,6 +186,85 @@ export enum TypeName {
   SwitcherViews = "SwitcherViews",
 }
 
+
+export interface CardRootObject {
+  badges: Badges;
+  cardRole: null;
+  checkItemStates: any[];
+  closed: boolean;
+  cover: Cover;
+  dateLastActivity: Date;
+  desc: string;
+  descData: DescData;
+  due: null;
+  dueComplete: boolean;
+  dueReminder: null;
+  email: null;
+  id: string;
+  idAttachmentCover: null;
+  idBoard: string;
+  idChecklists: any[];
+  idLabels: any[];
+  idList: string;
+  idMembers: any[];
+  idMembersVoted: any[];
+  idShort: number;
+  isTemplate: boolean;
+  labels: any[];
+  manualCoverAttachment: boolean;
+  name: string;
+  pos: number;
+  shortLink: string;
+  shortUrl: string;
+  start: null;
+  subscribed: boolean;
+  url: string;
+}
+
+export interface Badges {
+  attachments: number;
+  attachmentsByType: AttachmentsByType;
+  checkItems: number;
+  checkItemsChecked: number;
+  checkItemsEarliestDue: null;
+  comments: number;
+  description: boolean;
+  due: null;
+  dueComplete: boolean;
+  fogbugz: string;
+  location: boolean;
+  start: null;
+  subscribed: boolean;
+  viewingMemberVoted: boolean;
+  votes: number;
+}
+
+export interface AttachmentsByType {
+  trello: Trello;
+}
+
+export interface Trello {
+  board: number;
+  card: number;
+}
+
+export interface Cover {
+  brightness: string;
+  color: null;
+  idAttachment: null;
+  idPlugin: null;
+  idUploadedBackground: null;
+  size: string;
+}
+
+export interface DescData {
+  emoji: Emoji;
+}
+
+export interface Emoji {
+}
+
+
 const API_Authentication = {
   key: "8670fe9cc0999e8bf3155942da0ed34f",
   token: "ATTA731e3636819e6a98287c2b52f082e13d2349319288709a2004fb2d571ae4f83bDB2A86E9"
@@ -331,7 +410,7 @@ export const deleteBoard = createAsyncThunk(
 
 export const createCard = createAsyncThunk(
   "cards/createCard",
-  async ({ card_name, list_id, card_desc }: { card_name: string, list_id: string, card_desc?:string }, thunkAPI) => {
+  async ({ card_name, list_id, card_desc }: { card_name: string, list_id: string, card_desc?: string }, thunkAPI) => {
     try {
       const response = await fetch(`https://api.trello.com/1/cards?idList=${list_id}&name=${card_name}&desc=${card_desc}&key=${API_Authentication.key}&token=${API_Authentication.token}`
         , { method: 'POST' });
@@ -343,13 +422,60 @@ export const createCard = createAsyncThunk(
   }
 );
 
+export const getCardList = createAsyncThunk(
+  "cards/getCardList",
+  async (card_id: string, thunkAPI) => {
+    try {
+      const response = await fetch(`https://api.trello.com/1/cards/${card_id}/list?key=${API_Authentication.key}&token=${API_Authentication.token}`
+        , { method: 'GET' });
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue("Failed to get card list.");
+    }
+  }
+);
+
+
+export const updateCard = createAsyncThunk(
+  "cards/updateCard",
+  async ({ card_id, card_name, card_desc, list_id }: { card_id: string, card_name: string, card_desc?: string, list_id: string }, thunkAPI) => {
+    try {
+      const response = await fetch(`https://api.trello.com/1/cards/${card_id}?idList=${list_id}&name=${card_name}&desc=${card_desc}&key=${API_Authentication.key}&token=${API_Authentication.token}`
+        , { method: 'PUT' });
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue("Failed to update card info.");
+    }
+  }
+);
+
+
+export const deleteCard = createAsyncThunk(
+  "cards/deleteCard",
+  async (card_id: string, thunkAPI) => {
+    try {
+      const response = await fetch(`https://api.trello.com/1/cards/${card_id}?key=${API_Authentication.key}&token=${API_Authentication.token}`
+        , { method: 'DELETE' });
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue("Failed to delete card.");
+    }
+  }
+);
+
+
+
+
 export interface BoardsInitialState {
   AllBoards: RootObject[];
   boardColumns: string[];
   boardColumnSize: number;
   selectedBoard: RootObject[];
   selectedBoardList: RootObject[];
-  selectedBoardCard: RootObject[];
+  selectedBoardCard: CardRootObject[];
 
   loading: boolean;
   error: string | null;

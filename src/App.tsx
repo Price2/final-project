@@ -6,6 +6,8 @@ import BoardModal from './components/BoardModal';
 import Home from './components/Home';
 import WarningDialog from './components/WarningDialog';
 import TaskModalAdd from './components/TaskModalAdd';
+import TaskModalViewEdit from './components/TaskModalViewEdit';
+import WarningDialogTask from './components/WarningDialogTask';
 function App() {
 
   const dispatch: AppDispatch = useAppDispatch();
@@ -21,7 +23,9 @@ function App() {
   return (
     <Layout>
       <BoardModal />
-      <TaskModalAdd/>
+      <TaskModalAdd />
+      <WarningDialogTask/>
+      <TaskModalViewEdit/>
       <Home />
       <WarningDialog/>
     </Layout>

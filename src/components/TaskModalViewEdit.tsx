@@ -25,9 +25,12 @@ import TextField from '@mui/material/TextField';
 import { useSelector } from 'react-redux';
 import { RootState } from '../app/store';
 import { useAppDispatch, AppDispatch } from '../app/store';
-import { AddBoard, UpdateBoard, createBoard, createListForBoard, deleteBoardList, fetchBoardById, fetchSelectedBoard, incrementBoardColumnSize, updateBoardList, updateBoardName } from '../features/boardSlice';
-import { toggleCreateBoard, toggleEditBoard } from '../features/modalSlice';
+import { AddBoard, UpdateBoard, createBoard, createListForBoard, deleteBoardList, deleteCard, fetchBoardById, fetchSelectedBoard, getCardList, incrementBoardColumnSize, updateBoardList, updateBoardName, updateCard } from '../features/boardSlice';
+import { toggleAddTasks, toggleCreateBoard, toggleDeleteTasks, toggleEditBoard, toggleEditTasks, toggleViewTasks } from '../features/modalSlice';
 import { ReactJSXElement } from '@emotion/react/types/jsx-namespace';
+import { Menu, MenuItem, Select, Slide } from '@mui/material';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { TransitionProps } from '@mui/material/transitions';
 
 
 
@@ -110,208 +113,210 @@ BootstrapDialogTitle.propTypes = {
     onClose: PropTypes.func.isRequired,
 };
 
-
+const Transition = React.forwardRef(function Transition(
+    props: TransitionProps & {
+        children: React.ReactElement<any, any>;
+    },
+    ref: React.Ref<unknown>,
+) {
+    return <Slide direction="up" ref={ref} {...props} />;
+});
 
 type FormValues = {
-    board_name: string,
-    listsName: {
-        name: string,
-    }[]
+    title: string,
+    description: string,
+    status: string,
+
 }
 
 
 export default function ModalForm() {
-    const form = useForm<FormValues>({
-        defaultValues: {
-            board_name: "",
-
-        }
-    });
-    const { register, control, handleSubmit, reset, getValues, setValue, formState, watch } = form;
     const [open, setOpen] = React.useState(false);
     const [removedList, setRemovedList] = React.useState<any>([]);
     const boardList = useSelector((state: RootState) => state.boards.boardColumns);
     const selectedBoard = useSelector((state: RootState) => state.boards.selectedBoard);
+    const selectedCard = useSelector((state: RootState) => state.boards.selectedBoardCard);
     const modalToggle = useSelector((state: RootState) => state.modals);
     const dispatch: AppDispatch = useAppDispatch();
+    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+    const openDropDown = Boolean(anchorEl);
+    const form = useForm<FormValues>({
+        defaultValues: {
+            title: "",
+            description: "",
+            status: ""
 
-    const { fields, append, prepend, remove, swap, move, insert } = useFieldArray<FormValues>({
-        control,
-        name: "listsName",
-
+        }
     });
+    const { register, control, handleSubmit, reset, getValues, setValue, formState, watch } = form;
+
+
+
+    const handleDropDownClick = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+    const handleDropDownClose = () => {
+        setAnchorEl(null);
+    };
 
     React.useEffect(() => {
-        if (modalToggle.addNewBoardToggle) {
+        if (modalToggle.viewTasksToggle || modalToggle.editTasksToggle) {
             setOpen(true)
-        }
-
-    }, [modalToggle.addNewBoardToggle])
-
-
-    React.useEffect(() => {
-        if (modalToggle.editBoardToggle) {
-            if (selectedBoard.length && selectedBoard[0].lists.length) {
-                const lists: any = []
-                selectedBoard[0].lists.map((list: any) => {
-                    lists.push({ name: list.name, id: list.id })
-                    setValue('board_name', selectedBoard[0].name)
-                    setValue('listsName', lists)
-
-                })
-                setOpen(true)
+            const loadCardInfo = async () => {
+                const cardList = await dispatch(getCardList(selectedCard[0].id))
+                reset({ title: selectedCard[0].name, description: selectedCard[0].desc, status: cardList.payload.id })
             }
-            else {
-                setOpen(true)
-                setValue('board_name', selectedBoard[0].name)
-            }
+            loadCardInfo()
         }
+    }, [modalToggle.viewTasksToggle, modalToggle.editTasksToggle])
 
 
-    }, [modalToggle.editBoardToggle])
+    const handleEditTasks = () => {
+        handleDropDownClose();
+        dispatch(toggleEditTasks(true))
+        dispatch(toggleViewTasks(false))
+        const loadCardInfo = async () => {
+            const cardList = await dispatch(getCardList(selectedCard[0].id))
+            reset({ title: selectedCard[0].name, description: selectedCard[0].desc, status: cardList.payload.id })
+        }
+        loadCardInfo()
+    }
+
+    const handleDeleteTasks = () => {
+        handleDropDownClose()
+        dispatch(toggleDeleteTasks(true))
+        setOpen(false)
+        // setOpen(false)
+        // dispatch(toggleEditTasks(false))
+        // dispatch(toggleViewTasks(false))
+        // const cardDel = async () => {
+        //     await dispatch(deleteCard(selectedCard[0].id))
+        //     await dispatch(fetchSelectedBoard(selectedBoard[0].id))
+        // }
+        // cardDel()
+    }
 
     const handleClose = () => {
         setOpen(false);
+        dispatch(toggleEditTasks(false))
+        dispatch(toggleViewTasks(false))
         reset({
-            board_name: "",
-            listsName: []
+            title: "",
+            status: "",
+            description: ""
         })
-        dispatch(toggleCreateBoard(false))
-        if (modalToggle.editBoardToggle) {
-            dispatch(toggleEditBoard(false))
-        }
     };
 
 
     const onSubmit = (data: any) => {
-        console.log("submitted ", data)
-        const boardCreation = async () => {
-            if (data.listsName.length) {
-                const boardCreated = await dispatch(createBoard(data.board_name))
-                const { id } = boardCreated.payload;
-                for (const lists in data.listsName) {
-                    await dispatch(createListForBoard({ list_name: data.listsName[lists].name, board_id: id }))
-                }
-                const getBoardWithLists = await dispatch(fetchBoardById(id))
-                dispatch(AddBoard(getBoardWithLists.payload))
-            }
-            else {
-                const boardCreated = await dispatch(createBoard(data.board_name))
-                dispatch(AddBoard(boardCreated.payload))
-            }
-
+        console.log("data submitted view/edit ", data)
+        setOpen(false)
+        const updatingCardInfo = async () => {
+            debugger;
+            dispatch(toggleEditTasks(false))
+            dispatch(toggleViewTasks(false))
+            await dispatch(updateCard({ card_id: selectedCard[0].id, card_name: data.title, card_desc: data.description, list_id: data.status }))
+            await dispatch(fetchSelectedBoard(selectedBoard[0].id))
         }
-
-        if (modalToggle.editBoardToggle) {
-            const updates_found = []
-            boardUpdate(data)
-            // for (const listToRemove in removedList) {
-            //     const listname = selectedBoard[0].lists.filter((list: any) => list.name === removedList[listToRemove].name)[0]
-            //     dispatch(deleteBoardList(listname.id))
-            //     console.log("same name? ", listname)
-            // }
-            // console.log("updated ", data)
-
-
-
-            // for (const key in data.listsName) {
-            //     debugger;
-            //     if (data.listsName[key]?.id) {
-            //         dispatch(updateBoardList({ list_id: data.listsName[key].id, listName: data.listsName[key].name }))
-            //     }
-            //     else {
-            //         dispatch(createListForBoard({list_name: data.listsName[key].name, board_id: selectedBoard[0].id}))
-            //     }
-            //     console.log("same name? ")
-            // }
-
-
-            // const reFetchBoard = async () => {
-            //     debugger;
-            //     const reFetchBoard: any = await dispatch(fetchSelectedBoard(selectedBoard[0].id))
-            //     dispatch(UpdateBoard(reFetchBoard.payload))
-            //     console.log("updated ", reFetchBoard)
-            // }
-            // reFetchBoard()
-
-
-            dispatch(toggleEditBoard(false))
-
-        }
-        else {
-            boardCreation()
-        }
-        setOpen(false);
+        updatingCardInfo()
     }
 
-    const boardUpdate = (data: any) => {
-        
-        if (modalToggle.editBoardToggle) {
-            const updates_found = []
-
-            if (data.board_name !== selectedBoard[0].name) {
-                dispatch(updateBoardName({board_id: selectedBoard[0].id, board_name: data.board_name}))
-            }
-            for (const listToRemove in removedList) {
-                const listname = selectedBoard[0].lists.filter((list: any) => list.name === removedList[listToRemove].name)[0]
-                dispatch(deleteBoardList(listname.id))
-            }
-
-
-
-            for (const key in data.listsName) {
-                if (data.listsName[key]?.id) {
-                    dispatch(updateBoardList({ list_id: data.listsName[key].id, listName: data.listsName[key].name }))
-                }
-                else {
-                    dispatch(createListForBoard({ list_name: data.listsName[key].name, board_id: selectedBoard[0].id }))
-                }
-            }
-
-
-            const reFetchBoard = async () => {
-                const reFetchBoard: any = await dispatch(fetchSelectedBoard(selectedBoard[0].id))
-                dispatch(UpdateBoard(reFetchBoard.payload))
-            }
-            reFetchBoard()
-        }
-    }
 
     React.useEffect(() => {
         reset({
-            board_name: "",
-            listsName: []
+            title: "",
+            status: "",
+            description: ""
         })
     }, [formState.isSubmitSuccessful])
 
-
-
-    const handleRemove = (field: any, idx: any) => {
-        setRemovedList((myprev: any) => [...myprev, field])
-        remove(idx);
-    }
-
+    console.log("am i still open? ", open)
     return (
         <>
-            <Dialog open={open} onClose={handleClose}>
-                <form onSubmit={handleSubmit(onSubmit)}>
+            <Dialog open={open} onClose={handleClose} TransitionComponent={Transition} keepMounted>
+                
+                {modalToggle.viewTasksToggle &&
+                    <>
+                        <form onSubmit={handleSubmit(onSubmit)} style={{ padding: '0px 10px' }}>
 
-                    <DialogTitle sx={{
-                        color: ' var(--black, #000112)',
-                        fontSize: '18px',
-                        fontFamily: ' Plus Jakarta Sans',
-                        fontStyle: 'normal',
-                        fontWeight: '700',
-                        lineHeight: 'normal',
-                    }}> {modalToggle.addNewBoardToggle ?
-                        "Add New Board" : "Edit Board"
-                        }</DialogTitle>
-                    <DialogContent>
-                        <Controller
-                            control={control}
-                            name="board_name"
-                            render={({ field: { onChange, onBlur, value, ref } }) => (
-                                <div>
+                            <div style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                width: '1200px',
+                                height: '100px',
+                                maxWidth: 'calc(100%)'
+                            }}>
+                                <DialogTitle sx={{
+                                    color: ' var(--black, #000112)',
+                                    fontSize: '18px',
+                                    fontFamily: ' Plus Jakarta Sans',
+                                    fontStyle: 'normal',
+                                    fontWeight: '700',
+                                    lineHeight: 'normal',
+                                    pt: 0,
+                                }}>{selectedCard[0].name}</DialogTitle>
+                                <div >
+                                    <IconButton
+                                        aria-label="more"
+                                        id="long-button"
+                                        aria-controls={openDropDown ? 'long-menu' : undefined}
+                                        aria-expanded={openDropDown ? 'true' : undefined}
+                                        aria-haspopup="true"
+                                        onClick={handleDropDownClick}
+                                    >
+                                        <MoreVertIcon />
+                                    </IconButton>
+                                    <Menu
+                                        id="long-menu"
+                                        MenuListProps={{
+                                            'aria-labelledby': 'long-button',
+                                        }}
+                                        anchorEl={anchorEl}
+                                        open={openDropDown}
+                                        onClose={handleDropDownClose}
+
+                                    >
+                                        <MenuItem onClick={handleEditTasks} sx={{
+                                            color: 'var(--medium-grey, #828FA3)',
+                                            fontFamily: 'Plus Jakarta Sans',
+                                            fontSize: '13px',
+                                            fontStyle: 'normal',
+                                            fontWeight: '500',
+                                            lineHeight: '23px',
+                                        }}>
+                                            Edit Task
+                                        </MenuItem>
+                                        <MenuItem onClick={handleDeleteTasks} sx={{
+                                            color: 'var(--red, #EA5555)',
+                                            fontFamily: 'Plus Jakarta Sans',
+                                            fontSize: '13px',
+                                            fontStyle: 'normal',
+                                            fontWeight: '500',
+                                            lineHeight: '23px',
+                                        }}>
+                                            Delete Task
+                                        </MenuItem>
+                                    </Menu>
+
+                                </div>
+                            </div>
+
+                            <DialogContent sx={{ width: "100%", pt: '0' }}>
+                                <DialogContentText sx={{
+                                    color: 'var(--medium-grey, #828FA3)',
+                                    /* Body (L) */
+                                    fontFamily: 'Plus Jakarta Sans',
+                                    fontSize: '13px',
+                                    fontStyle: 'normal',
+                                    fontWeight: '500',
+                                    lineHeight: '23px',
+                                    my: "10px",
+
+                                }}>
+                                    {selectedCard[0].desc}
+                                </DialogContentText>
+                                <div style={{ marginTop: '55px' }}>
                                     <InputLabel shrink htmlFor="bootstrap-input" sx={{
                                         color: ' var(--medium-grey, #828FA3)',
                                         fontSize: '16px',
@@ -320,130 +325,217 @@ export default function ModalForm() {
                                         fontWeight: '700',
                                         lineHeight: 'normal',
                                     }}>
-                                        {modalToggle.editBoardToggle ? "Board Name" : "Name"}
+                                        Status
                                     </InputLabel>
-
-
-                                    <TextField
-                                        placeholder="e.g. Web Design"
-                                        size="small"
-                                        onBlur={onBlur}
-
-                                        onChange={onChange}
-                                        value={value}
-                                        error={!value}
-                                        type='text'
-                                        id="fullname-input"
-                                        helperText={!value ? "Required" : ""}
-                                        required
-                                        sx={{
-                                            width: "550px",
-                                            maxWidth: "100%",
-                                            height: '40px',
-                                            minWidth: '0',
-                                            mb: "48px",
-                                            padding: "0px"
-                                        }}
-                                    />
-                                </div>
-                            )}
-                        />
-                        <DialogContentText sx={{
-                            color: 'var(--medium-grey, #828FA3)',
-                            fontSize: '12px',
-                            fontFamily: 'Plus Jakarta Sans',
-                            fontStyle: 'normal',
-                            fontWeight: '700',
-                            lineHeight: 'normal',
-                            mb: "8px"
-                        }}>
-                            {modalToggle.editBoardToggle ? "Board Columns" : "Columns"}
-                        </DialogContentText>
-
-                        {fields.map((field, idx) => {
-                            return (
-                                <div key={field.id}>
-
                                     <Controller
                                         control={control}
-                                        name={`listsName.${idx}.name`}
-                                        render={({ field: { onChange, onBlur, value, ref } }) => (
-                                            <div style={{ display: 'flex', alignItems: 'center', marginBottom: "25px" }}>
-
-                                                <TextField
-
-                                                    size="small"
+                                        name="status"
+                                        render={({ field: { onChange, onBlur, value },
+                                            fieldState: { invalid, isTouched, isDirty, error },
+                                        }) => (
+                                            <FormControl required sx={{ mt: 0, width: "100%" }}>
+                                                <Select
+                                                    labelId="user-group-required-label"
+                                                    id="user-group-required"
+                                                    size='small'
                                                     onBlur={onBlur}
-                                                    onChange={onChange}
-                                                    value={value}
                                                     error={!value}
-                                                    type='text'
-                                                    id="fullname-input"
-                                                    helperText={!value ? "Required" : ""}
+                                                    onChange={({ target: { value } }) => onChange(value)}
+                                                    value={value}
+                                                    // helperText={!value ? "Required" : ""}
+
                                                     required
-                                                    sx={{
-                                                        width: "500px",
-                                                        maxWidth: "100%",
-                                                        height: '40px',
-                                                        minWidth: '0',
-                                                        // mb: "48px",
-                                                        padding: "0px"
-                                                    }}
-                                                />
-                                                <i onClick={() => { handleRemove(field, idx) }} style={{
-                                                    cursor: "pointer",
-                                                }}><img src={require("../images/col-x.svg").default} alt="" style={{ marginLeft: "20px" }} /></i>
-                                            </div>
+                                                >
+                                                    {/* <MenuItem value="">
+                                                        <em>None</em>
+                                                    </MenuItem> */}
+                                                    {selectedBoard[0].lists.map((list: any, idx: any) => {
+
+                                                        return (<MenuItem key={idx} value={list.id}>{list.name}</MenuItem>)
+
+                                                    })}
+                                                </Select>
+                                                <FormHelperText>{!value ? "Required" : ""}</FormHelperText>
+                                            </FormControl>
+
                                         )}
                                     />
-
-
-
-
-
                                 </div>
-                            )
+                            </DialogContent>
+                        </form>
+                    </>
+
+                }
+                {modalToggle.editTasksToggle &&
+                    <>
+                        <form onSubmit={handleSubmit(onSubmit)}>
+
+                            <DialogTitle sx={{
+                                color: ' var(--black, #000112)',
+                                fontSize: '18px',
+                                fontFamily: ' Plus Jakarta Sans',
+                                fontStyle: 'normal',
+                                fontWeight: '700',
+                                lineHeight: 'normal',
+                            }}>Edit Task</DialogTitle>
+
+                            <DialogContent>
+                                <Controller
+                                    control={control}
+                                    name="title"
+                                    render={({ field: { onChange, onBlur, value, ref } }) => (
+                                        <div>
+                                            <InputLabel shrink htmlFor="bootstrap-input" sx={{
+                                                color: ' var(--medium-grey, #828FA3)',
+                                                fontSize: '16px',
+                                                fontFamily: ' Plus Jakarta Sans',
+                                                fontStyle: 'normal',
+                                                fontWeight: '700',
+                                                lineHeight: 'normal',
+                                            }}>
+                                                Title
+                                            </InputLabel>
 
 
+                                            <TextField
+                                                placeholder="e.g. Take coffee break"
+                                                size="small"
+                                                onBlur={onBlur}
 
-                        })}
-                    </DialogContent>
-                    <DialogActions sx={{
-                        display: 'flex', flexDirection: "column", alignItems: "center", justifyContent: "center",
-                        padding: '20px 24px',
+                                                onChange={onChange}
+                                                value={value}
+                                                error={!value}
+                                                type='text'
+                                                id="fullname-input"
+                                                helperText={!value ? "Required" : ""}
+                                                required
+                                                sx={{
+                                                    width: "550px",
+                                                    maxWidth: "100%",
+                                                    height: '40px',
+                                                    minWidth: '0',
+                                                    mb: "48px",
+                                                    padding: "0px"
+                                                }}
+                                            />
 
-                    }}>
-                        <Button sx={{
-                            borderRadius: '20px',
-                            backgroundColor: 'rgba(99, 95, 199, 0.10)',
-                            width: '100%',
-                            py: "10px",
-                            mb: "24px"
-                        }} onClick={() => append({ name: "" })}><span className='btn-text'>+ Add New Column</span></Button>
+                                        </div>
+                                    )}
+                                />
 
-                        {modalToggle.editBoardToggle ?
-                            <Button
-                                sx={{
-                                    borderRadius: '20px',
-                                    backgroundColor: 'var(--main-purple, #635FC7)',
-                                    width: '100%',
-                                    py: "10px"
-                                }}
-                                type="submit"><span className='btn-text' style={{ color: "white" }}>Save Changes</span></Button>
-                            :
+                                <Controller
+                                    control={control}
+                                    name="description"
+                                    render={({ field: { onChange, onBlur, value, ref } }) => (
+                                        <div>
+                                            <InputLabel shrink htmlFor="bootstrap-input" sx={{
+                                                color: ' var(--medium-grey, #828FA3)',
+                                                fontSize: '16px',
+                                                fontFamily: ' Plus Jakarta Sans',
+                                                fontStyle: 'normal',
+                                                fontWeight: '700',
+                                                lineHeight: 'normal',
+                                            }}>
+                                                Description
+                                            </InputLabel>
 
-                            <Button
-                                sx={{
-                                    borderRadius: '20px',
-                                    backgroundColor: 'var(--main-purple, #635FC7)',
-                                    width: '100%',
-                                    py: "10px"
-                                }}
-                                type="submit"><span className='btn-text' style={{ color: "white" }}>Create New Board</span></Button>
-                        }
 
-                    </DialogActions>
-                </form >
+                                            <TextField
+                                                placeholder="e.g. It’s always good to take a break. This 15 minute break will 
+                                        recharge the batteries a little."
+                                                size="small"
+                                                onBlur={onBlur}
+                                                multiline
+                                                rows={4}
+
+                                                onChange={onChange}
+                                                value={value}
+                                                error={!value}
+                                                type='text'
+                                                id="fullname-input"
+                                                helperText={!value ? "Required" : ""}
+                                                required
+                                                sx={{
+                                                    width: "550px",
+                                                    maxWidth: "100%",
+                                                    height: '40px',
+                                                    minWidth: '0',
+                                                    mb: "120px",
+                                                    padding: "0px"
+                                                }}
+                                            />
+
+                                        </div>
+                                    )}
+                                />
+                                <InputLabel shrink htmlFor="bootstrap-input" sx={{
+                                    color: ' var(--medium-grey, #828FA3)',
+                                    fontSize: '16px',
+                                    fontFamily: ' Plus Jakarta Sans',
+                                    fontStyle: 'normal',
+                                    fontWeight: '700',
+                                    lineHeight: 'normal',
+                                }}>
+                                    Status
+                                </InputLabel>
+                                <Controller
+                                    control={control}
+                                    name="status"
+                                    render={({ field: { onChange, onBlur, value } }) => (
+                                        <FormControl required sx={{ mt: 0, width: "100%" }}>
+                                            <Select
+                                                labelId="user-group-required-label"
+                                                id="user-group-required"
+                                                size='small'
+                                                onBlur={onBlur}
+                                                error={!value}
+                                                onChange={({ target: { value } }) => onChange(value)}
+                                                value={value}
+                                                // helperText={!value ? "Required" : ""}
+
+                                                required
+                                            >
+                                                {/* <MenuItem value="">
+                                                    <em>None</em>
+                                                </MenuItem> */}
+                                                {selectedBoard[0].lists.map((list: any, idx: any) => {
+
+                                                    return (<MenuItem key={idx} value={list.id}>{list.name}</MenuItem>)
+
+                                                })}
+                                            </Select>
+                                            <FormHelperText>{!value ? "Required" : ""}</FormHelperText>
+                                        </FormControl>
+
+                                    )}
+                                />
+
+                            </DialogContent>
+
+                            <DialogActions sx={{
+                                display: 'flex', flexDirection: "column", alignItems: "center", justifyContent: "center",
+                                padding: '20px 24px',
+
+                            }}>
+
+                                <Button
+                                    sx={{
+                                        borderRadius: '20px',
+                                        backgroundColor: 'var(--main-purple, #635FC7)',
+                                        width: '100%',
+                                        py: "10px",
+                                        '&:hover': {
+                                            backgroundColor:' var(--main-purple-hover, #A8A4FF)',
+                                        }
+                                    }}
+                                    type="submit"><span className='btn-text' style={{ color: "white" }}>Save Changes</span></Button>
+
+                            </DialogActions>
+                        </form>
+                    </>
+                }
+
+
             </Dialog >
 
             <DevTool control={control} />
