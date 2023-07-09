@@ -507,12 +507,10 @@ export const boardsSlice = createSlice({
       state.selectedBoard = action.payload
     },
     AddBoard: (state, action) => {
-      console.log("action payload ", action.payload)
       state.AllBoards.push(action.payload)
     },
     UpdateBoard: (state, action) => {
       debugger;
-      console.log("action payload ", action.payload)
       state.AllBoards = state.AllBoards.map(board => {
         if (board.id === action.payload.id) {
           return action.payload

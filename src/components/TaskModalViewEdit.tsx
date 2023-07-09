@@ -211,7 +211,6 @@ export default function ModalForm() {
 
 
     const onSubmit = (data: any) => {
-        console.log("data submitted view/edit ", data)
         setOpen(false)
         const updatingCardInfo = async () => {
             debugger;
@@ -232,7 +231,6 @@ export default function ModalForm() {
         })
     }, [formState.isSubmitSuccessful])
 
-    console.log("am i still open? ", open)
     return (
         <>
             <Dialog open={open} onClose={handleClose} TransitionComponent={Transition} keepMounted

@@ -27,11 +27,9 @@ export default function Home() {
     const mode = useSelector((state: RootState) => state.mode.mode);
 
 
-    console.log("selectedBoard ", selectedBoardList);
 
 
     const handleToggleViewCard = (card: {}) => {
-        console.log("card selected ", card)
         dispatch(setCurrentSelectedCard(card))
         dispatch(toggleViewTasks(true))
     }

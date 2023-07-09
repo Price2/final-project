@@ -172,7 +172,6 @@ export default function ModalForm() {
 
 
     const onSubmit = (data: any) => {
-        console.log("submitting task ", data)
 
         setOpen(false);
         const createNewCard = async () => {

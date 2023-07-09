@@ -252,7 +252,6 @@ export default function PersistentDrawerLeft({ children }: Props) {
     const dispatch: AppDispatch = useAppDispatch();
 
 
-    console.log("loading boards ", boards)
     const [BoardanchorEl, setBoardAnchorEl] = React.useState<null | HTMLElement>(null);
     const openBoardDropDown = Boolean(BoardanchorEl);
 
@@ -291,7 +290,6 @@ export default function PersistentDrawerLeft({ children }: Props) {
     }
 
     const setSelectedBoard = (board: any) => {
-        console.log("board selected ", board);
 
         dispatch(fetchSelectedBoard(board.id))
         // dispatch(setCurrentSelectedBoard(board))
@@ -313,7 +311,6 @@ export default function PersistentDrawerLeft({ children }: Props) {
     }
 
     const handleMode = (e: any) => {
-        console.log("true or false? ", e.target.checked)
         if (!e.target.checked) {
             dispatch(toggleMode('light-mode'))
             document.body.style.backgroundColor = "#F4F7FD"
@@ -347,7 +344,6 @@ export default function PersistentDrawerLeft({ children }: Props) {
     }, [selectedBoard])
 
 
-    console.log("are there lists? ", isListsRetrived)
     return (
         <Box sx={{ display: 'flex' }}>
             <CssBaseline />

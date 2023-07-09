@@ -13,6 +13,8 @@ function App() {
   const dispatch: AppDispatch = useAppDispatch();
 
   React.useEffect(() => {
+    // On Load, fetch all my boards from API by dispatcher (fetchBoards), then select the first board from response and fetch its contents 
+    // (because fetching all boards does not retreive the board's cards/tasks information) then set this board as the selected default board (dispatcher handles the selected board, fetchSelectedBoard)
     const fetchOnLoad = async () => {
       const AllBoards = await dispatch<any>(fetchBoards())
       await dispatch(fetchSelectedBoard(AllBoards.payload[0].id))

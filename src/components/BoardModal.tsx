@@ -199,7 +199,6 @@ export default function ModalForm() {
 
 
     const onSubmit = (data: any) => {
-        console.log("submitted ", data)
         debugger;
         const boardCreation = async () => {
             debugger;
