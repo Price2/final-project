@@ -30,7 +30,7 @@ export default function Home() {
     console.log("selectedBoard ", selectedBoardList);
 
 
-    const handleToggleViewCard = (card:{}) => {
+    const handleToggleViewCard = (card: {}) => {
         console.log("card selected ", card)
         dispatch(setCurrentSelectedCard(card))
         dispatch(toggleViewTasks(true))
@@ -42,9 +42,10 @@ export default function Home() {
     }
 
     return (
-        <div style={{ width: '100%', display: "flex", flexWrap: "nowrap", position:'relative', overflowX: "auto"
+        <div style={{
+            width: '100%', display: "flex", flexWrap: "nowrap", position: 'relative', overflowX: "auto"
 
-    }} className="gapInSmallWidth">
+        }} className="gapInSmallWidth">
 
 
             <>
@@ -87,34 +88,46 @@ export default function Home() {
                                                 marginRight: '12px',
 
 
-                                            }} /> {list.name} ({selectedBoardList.length})</p>
+                                            }} /> {list.name} ({((list: any) => {
+                                                const cards = selectedBoard[0].cards.filter((card: any) => {
+                                                    if (card.idList === list.id) {
+                                                      return true
+                                                    }
+                                                    return false
+                                                }
+                                                )
+                                                return <>{cards.length? cards.length: "0"}</>
+                                            }
+                                            )
+                                            (list)}
+                                            )</p>
 
-                                        {selectedBoard[0].cards.map((card: any, idx:string) => {
+                                        {selectedBoard[0].cards.map((card: any, idx: string) => {
 
                                             return card.idList === list.id ?
-                                                <Card key={idx} onClick={()=> handleToggleViewCard(card)} sx={{
+                                                <Card key={idx} onClick={() => handleToggleViewCard(card)} sx={{
                                                     minWidth: "auto", width: '300px', height: "90px",
                                                     borderRadius: '8px',
                                                     mb: '20px',
                                                     cursor: 'pointer',
                                                     boxShadow: '0px 4px 6px 0px rgba(54, 78, 126, 0.10)',
-                                                    backgroundColor: mode==='dark-mode'? "#2B2C37":"",
+                                                    backgroundColor: mode === 'dark-mode' ? "#2B2C37" : "",
                                                     "&:hover": {
                                                         "& .cardNameHover": {
-                                                            color:'#635FC7'
+                                                            color: '#635FC7'
                                                         }
                                                     }
                                                 }}>
                                                     <CardContent>
                                                         <Typography sx={{
-                                                            color: mode==='light-mode'? 'var(--black, #000112)': "white",
+                                                            color: mode === 'light-mode' ? 'var(--black, #000112)' : "white",
                                                             fontFamily: 'Plus Jakarta Sans',
                                                             fontSize: '15px',
                                                             fontStyle: 'normal',
                                                             fontWeight: '700',
                                                             lineHeight: 'normal',
-                                                            
-                                                            
+
+
                                                         }} color="text.secondary" gutterBottom className="cardNameHover">
                                                             {card.name}
                                                         </Typography>
@@ -144,17 +157,17 @@ export default function Home() {
                         >
                             <div>
 
-                                <Card onClick={toggleEditBaord}  sx={{
+                                <Card onClick={toggleEditBaord} sx={{
                                     minWidth: 275,
                                     width: '280px',
                                     height: "100vh",
                                     marginTop: "45px",
                                     cursor: "pointer",
-                                    background: mode==='light-mode'?"#E9EFFA":"linear-gradient(180deg, rgba(43, 44, 55, 0.25) 0%, rgba(43, 44, 55, 0.13) 100%)",
+                                    background: mode === 'light-mode' ? "#E9EFFA" : "linear-gradient(180deg, rgba(43, 44, 55, 0.25) 0%, rgba(43, 44, 55, 0.13) 100%)",
                                     "&:hover": {
                                         "& .create-column-text": {
-                                          color:' var(--main-purple, #635FC7);'
-                                      }
+                                            color: ' var(--main-purple, #635FC7);'
+                                        }
                                     },
                                 }}>
                                     <CardContent sx={{
@@ -199,7 +212,7 @@ export default function Home() {
                                 height: '48px',
                                 textTransform: 'none',
                                 ':hover': {
-                                    backgroundColor:'#A8A4FF'
+                                    backgroundColor: '#A8A4FF'
                                 }
 
                             }}>
